@@ -1,0 +1,6 @@
+Primer1	Primer2	Primer1_sequence_5to3	Primer2_sequence_3to5	Hypervariable_region	DB	table	date
+8F	534R	AGAGTTTGATCCTGGCTCAG	TGCCAGCAGCCGCGGTAAT	V1-V3_2019-07-25	V1-V3_8F-534R_hang10_2019-07-25_wrefseq_sequences_unique_variants	V1-V3_8F-534R_hang10_2019-07-25_wrefseq_table_unique_variants_R.txt	2019-07-25
+337F	805R	GACTCCTACGGGAGGCWGCAG	GACTACCAGGGTATCTAATC	V3-V4_2020-01-29	V3-V4_337F-805R_hang22_2020-01-29_wrefseq_sequences_unique_variants	V3-V4_337F-805R_hang22_2020-01-29_wrefseq_table_unique_variants_R.txt	2020-01-29
+515F	805R	GTGCCAGCMGCCGCGGTAA	GACTACCAGGGTATCTAATC	V4_2020-01-29	V4_515F-805R_hang22_2020-01-29_wrefseq_sequences_unique_variants	V4_515F-805R_hang22_2020-01-29_wrefseq_table_unique_variants_R.txt	2020-01-29
+337F	805R	GACTCCTACGGGAGGCWGCAG	GACTACCAGGGTATCTAATC	V3-V4	V3-V4_337F-805R_hang22_2020-01-29_wrefseq_sequences_unique_variants	V3-V4_337F-805R_hang22_2020-01-29_wrefseq_table_unique_variants_R.txt	2020-01-29
+515F	805R	GTGCCAGCMGCCGCGGTAA	GACTACCAGGGTATCTAATC	V4	V4_515F-805R_hang22_2020-01-29_wrefseq_sequences_unique_variants	V4_515F-805R_hang22_2020-01-29_wrefseq_table_unique_variants_R.txt	2020-01-29

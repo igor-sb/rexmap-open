@@ -1,0 +1,10 @@
+src/*.o
+src/*.so
+src/*.dll
+.DS_Store
+blast_error_on_linux.md
+_git_reinit
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
