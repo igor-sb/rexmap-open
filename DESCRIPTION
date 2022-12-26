@@ -22,3 +22,6 @@ Imports:
    utils (>= 3.4.4)
 RoxygenNote: 7.1.0
 StagedInstall: false
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

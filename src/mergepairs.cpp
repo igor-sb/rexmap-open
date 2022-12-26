@@ -380,12 +380,11 @@ Rcpp::CharacterVector nwalign_endsfree_test (std::string s1, std::string s2, std
 
 
 // [[Rcpp::export]]
-Rcpp::CharacterVector C_mergepairs(std::string s1, std::string s2,
+List C_mergepairs(std::string s1, std::string s2,
                                 std::string q1, std::string q2,
                                 std::string posterior_match_file,
                                 std::string posterior_mismatch_file,
-                                int match, int mismatch, int gap_p,
-                                double min_pct_sim, int min_aln_len) {
+                                int match, int mismatch, int gap_p) {
 
   // Alignment filter parameters
   int aln_matches = 0; // number of matching letters in the alignment
@@ -480,13 +479,19 @@ Rcpp::CharacterVector C_mergepairs(std::string s1, std::string s2,
   Rcpp::CharacterVector rval;
   rval.push_back(std::string(merged[0]));
   rval.push_back(std::string(merged[1]));
-  rval.push_back(std::string(pct_sim >= min_pct_sim ? "TRUE" : "FALSE"));
-  rval.push_back(std::string(len_overlap >= min_aln_len ? "TRUE" : "FALSE"));
+  List merged_out = List::create(
+    _["sequence"] = std::string(merged[0]),
+    _["quality"] = std::string(merged[1]),
+    _["similarity"] = pct_sim,
+    _["overlap"] = len_overlap
+  );
+  // rval.push_back(std::string(pct_sim >= min_pct_sim ? "TRUE" : "FALSE"));
+  // rval.push_back(std::string(len_overlap >= min_aln_len ? "TRUE" : "FALSE"));
   // rval.push_back(std::string(al[0]));
   // rval.push_back(std::string(al[1]));
   free(merged[0]);
   free(merged[1]);
-  return(rval);
+  return(merged_out);
 }
 
 

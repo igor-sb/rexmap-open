@@ -70,6 +70,7 @@ assign('aln_params', c(5L, -4L, -8L, -6L), env=himap_opts)
 # alignments, if the lengths of query and subject aren't too different.
 assign('osu_offset', 1000000L, env=himap_opts)
 assign('ncpu', parallel::detectCores(), env=himap_opts)
+assign("logger", log4r::logger(), env = himap_opts)
 
 # BLAST databases
 assign('blast_dbs',

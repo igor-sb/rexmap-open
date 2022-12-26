@@ -1,0 +1,12 @@
+@test.fastq.1
+CATTGACA
++
+AC55=1/+
+@test.fastq.2
+CAGTCAGT
++
+D?=;863.
+@test.fastq.3
+ATGCAGTC
++
+IHGGA:.*
