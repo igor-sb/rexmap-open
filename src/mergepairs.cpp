@@ -117,6 +117,122 @@ void int2nt(char *oseq, const char *iseq) {
   return;
 }
 
+// [[Rcpp::export]]
+std::vector<std::string> nwalign_endsfree(
+    std::string s1,
+    std::string s2,
+    std::string q1,
+    std::string q2,
+    std::vector< std::vector<int> > score,
+    int gap_p
+) {
+  int i, j, l, r, diag, left, up;
+  int len1 = static_cast<int>(s1.size());
+  int len2 = static_cast<int>(s2.size());
+  int nrow = len1 + 1;
+  int ncol = len2 + 1;
+  
+  std::vector<int> d(nrow * ncol);
+  std::vector<int> p(nrow * ncol);
+  
+  // Fill out left columns of d, p.
+  for (i = 0; i <= len1; i++) {
+    d[i * ncol] = 0; // ends-free gap
+    p[i * ncol] = 3;
+  }
+  
+  // Fill out top rows of d, p.
+  for (j = 0; j <= len2; j++) {
+    d[j] = 0; // ends-free gap
+    p[j] = 2;
+  }
+  
+  // Fill out the body of the DP matrix.
+  for (i = 1; i <= len1; i++) {
+    l = 1;
+    r = len2;
+
+    for (j = l; j <= r; j++) {
+      // Score for the left move.
+      if (i == len1) {
+        left = d[i * ncol + j - 1]; // Ends-free gap.
+      } else {
+        left = d[i * ncol + j - 1] + gap_p;
+      }
+      
+      // Score for the up move.
+      if (j == len2) {
+        up = d[(i - 1) * ncol + j]; // Ends-free gap.
+      } else {
+        up = d[(i - 1) * ncol + j] + gap_p;
+      }
+      
+      // Score for the diagonal move.
+      diag = d[(i-1) * ncol + j-1] + score[s1[i-1]-1][s2[j-1]-1];
+      
+      // Break ties and fill in d,p.
+      if (up >= diag && up >= left) {
+        d[i*ncol + j] = up;
+        p[i*ncol + j] = 3;
+      } else if (left >= diag) {
+        d[i*ncol + j] = left;
+        p[i*ncol + j] = 2;
+      } else {
+        d[i*ncol + j] = diag;
+        p[i*ncol + j] = 1;
+      }
+    }
+  }  
+  
+  std::vector<std::string> al0(len1 + len2 + 1);
+  std::vector<std::string> al1(len1 + len2 + 1);
+  std::vector<std::string> qs0(len1 + len2 + 1);
+  std::vector<std::string> qs1(len1 + len2 + 1);
+
+  // Trace back over p to form the alignment.
+  size_t len_al = 0;
+  i = len1;
+  j = len2;
+  
+  while ( i > 0 || j > 0 ) {
+    switch ( p[i * ncol + j] ) {
+    case 1:
+      i = i - 1;
+      j = j - 1;
+      al0[len_al] = s1[i];
+      al1[len_al] = s2[j];
+      qs0[len_al] = q1[i];
+      qs1[len_al] = q2[j];
+      break;
+    case 2:
+      j = j - 1;
+      al0[len_al] = '-';
+      al1[len_al] = s2[j];
+      qs0[len_al] = ' ';
+      qs1[len_al] = q2[j];
+      break;
+    case 3:
+      i = i - 1;
+      al0[len_al] = s1[i];
+      al1[len_al] = '-';
+      qs0[len_al] = q1[i];
+      qs1[len_al] = ' ';
+      break;
+    default:
+      Rcpp::stop("N-W Align out of range.");
+    }
+    len_al++;
+  }
+  
+  std::vector<std::string> al(4);
+  al[0] = std::accumulate(al0.begin(), al0.end(), std::string(""));
+  al[1] = std::accumulate(al1.begin(), al1.end(), std::string(""));
+  al[2] = std::accumulate(qs0.begin(), qs0.end(), std::string(""));
+  al[3] = std::accumulate(qs1.begin(), qs1.end(), std::string(""));
+  
+  return(al);
+}
+
 char **himap_nwalign_endsfree(const char *s1, const char *s2,
                               const char *q1, const char *q2,
                               int score[5][5], int gap_p) {
@@ -145,27 +261,6 @@ char **himap_nwalign_endsfree(const char *s1, const char *s2,
     d[j] = 0; // ends-free gap
     p[j] = 2;
   }
-
-  // Calculate left/right-bands in case of different lengths
-  //int lband, rband;
-  // if(len2 > len1) {
-  //   lband = band;
-  //   rband = band+len2-len1;
-  // } else if(len1 > len2) {
-  //   lband = band+len1-len2;
-  //   rband = band;
-  // } else {
-  //   lband = band;
-  //   rband = band;
-  // }
-
-  // Fill out band boundaries of d.
-  // if(band>=0 && (band<len1 || band<len2)) {
-  //   for(i=0;i<=len1;i++) {
-  //     if(i-lband-1 >= 0) { d[i*ncol + i-lband-1] = -9999; }
-  //     if(i+rband+1 <= len2) { d[i*ncol + i+rband+1] = -9999; }
-  //   }
-  // }
 
   // Fill out the body of the DP matrix.
   for (i = 1; i <= len1; i++) {
@@ -341,45 +436,6 @@ char **himap_merge_alignment(char** al) {
 }
 
 // [[Rcpp::export]]
-Rcpp::CharacterVector nwalign_endsfree_test (std::string s1, std::string s2, std::string q1, std::string q2,
-                                        int match=5, int mismatch=-2) {
-  // Make  c-style 2d score array
-  int i, j;
-  int c_score[5][5];
-  for(i=0;i<5;i++) {
-    for(j=0;j<5;j++) {
-      if(i==j) {
-        if (i==4) {
-          // both i and j are N, declare it mismatch
-          c_score[i][j] = mismatch;
-        } else {
-          c_score[i][j] = match;
-        }
-      }
-      else {
-        c_score[i][j] = mismatch;
-      }
-    }
-  }
-  char *seq1 = (char *) malloc(s1.size()+1);
-  char *seq2 = (char *) malloc(s2.size()+1);
-  if (seq1 == NULL || seq2 == NULL)  Rcpp::stop("Memory allocation failed.");
-  nt2int(seq1, s1.c_str());
-  nt2int(seq2, s2.c_str());
-  const char *qs1 = q1.c_str();
-  const char *qs2 = q2.c_str();
-  int gap_p = -7;
-  char** al = himap_nwalign_endsfree(seq1, seq2, qs1, qs2, c_score, gap_p);
-  int2nt(al[0], al[0]);
-  int2nt(al[1], al[1]);
-  Rcpp::CharacterVector rval;
-  rval.push_back(std::string(al[0]));
-  rval.push_back(std::string(al[1]));
-  return(rval);
-}
-
-
-// [[Rcpp::export]]
 List C_mergepairs(std::string s1, std::string s2,
                                 std::string q1, std::string q2,
                                 std::string posterior_match_file,
@@ -428,6 +484,7 @@ List C_mergepairs(std::string s1, std::string s2,
   const char *qs2 = q2.c_str();
 
   // Perform alignment and convert back to ACGT
+  std::cout << "Seq1: " << seq1;
   al = himap_nwalign_endsfree(seq1, seq2, qs1, qs2, c_score, gap_p);
   int2nt(al[0], al[0]);
   int2nt(al[1], al[1]);
@@ -493,6 +550,3 @@ List C_mergepairs(std::string s1, std::string s2,
   free(merged[1]);
   return(merged_out);
 }
-
-
-
