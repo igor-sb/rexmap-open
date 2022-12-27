@@ -4,7 +4,6 @@ using namespace Rcpp;
 
 // Constants
 #define PHRED_OFFSET 33
-#define GAP_P -7
 
-void nt2int(char *oseq, const char *iseq);
-void int2nt(char *oseq, const char *iseq);
+int to_int(char &nt);
+std::vector< std::vector<int> > create_scores(int match, int mismatch);

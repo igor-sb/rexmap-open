@@ -21,16 +21,44 @@ compare_alignment <- function(s1, s2) {
     .Call('_rexmap_compare_alignment', PACKAGE = 'rexmap', s1, s2)
 }
 
+nt_to_int <- function(nt) {
+    .Call('_rexmap_nt_to_int', PACKAGE = 'rexmap', nt)
+}
+
+create_scoring_matrix <- function(match, mismatch) {
+    .Call('_rexmap_create_scoring_matrix', PACKAGE = 'rexmap', match, mismatch)
+}
+
+create_scores <- function(match, mismatch) {
+    .Call('_rexmap_create_scores', PACKAGE = 'rexmap', match, mismatch)
+}
+
+join_to_string <- function(str_vector) {
+    .Call('_rexmap_join_to_string', PACKAGE = 'rexmap', str_vector)
+}
+
+align_seqs_and_quals <- function(seq1, seq2, qua1, qua2, match, mismatch, gap_p) {
+    .Call('_rexmap_align_seqs_and_quals', PACKAGE = 'rexmap', seq1, seq2, qua1, qua2, match, mismatch, gap_p)
+}
+
+test_fun <- function(x) {
+    invisible(.Call('_rexmap_test_fun', PACKAGE = 'rexmap', x))
+}
+
 load_posterior <- function(filename) {
     .Call('_rexmap_load_posterior', PACKAGE = 'rexmap', filename)
 }
 
-nwalign_endsfree_test <- function(s1, s2, q1, q2, match = 5L, mismatch = -2L) {
-    .Call('_rexmap_nwalign_endsfree_test', PACKAGE = 'rexmap', s1, s2, q1, q2, match, mismatch)
+string_to_vector_str <- function(str) {
+    .Call('_rexmap_string_to_vector_str', PACKAGE = 'rexmap', str)
 }
 
-C_mergepairs <- function(s1, s2, q1, q2, posterior_match_file, posterior_mismatch_file, match, mismatch, gap_p, min_pct_sim, min_aln_len) {
-    .Call('_rexmap_C_mergepairs', PACKAGE = 'rexmap', s1, s2, q1, q2, posterior_match_file, posterior_mismatch_file, match, mismatch, gap_p, min_pct_sim, min_aln_len)
+string_to_vector_int <- function(str) {
+    .Call('_rexmap_string_to_vector_int', PACKAGE = 'rexmap', str)
+}
+
+C_mergepairs <- function(s1, s2, q1, q2, posterior_match_file, posterior_mismatch_file, match, mismatch, gap_p) {
+    .Call('_rexmap_C_mergepairs', PACKAGE = 'rexmap', s1, s2, q1, q2, posterior_match_file, posterior_mismatch_file, match, mismatch, gap_p)
 }
 
 C_nwalign <- function(s1, s2, match, mismatch, indel) {

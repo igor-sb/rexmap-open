@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // value_map
 std::map<int, std::vector<int> > value_map(std::vector<int> x);
 RcppExport SEXP _rexmap_value_map(SEXP xSEXP) {
@@ -63,6 +68,79 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// nt_to_int
+int nt_to_int(char& nt);
+RcppExport SEXP _rexmap_nt_to_int(SEXP ntSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< char& >::type nt(ntSEXP);
+    rcpp_result_gen = Rcpp::wrap(nt_to_int(nt));
+    return rcpp_result_gen;
+END_RCPP
+}
+// create_scoring_matrix
+std::unordered_map<char, std::unordered_map<char, int>> create_scoring_matrix(int match, int mismatch);
+RcppExport SEXP _rexmap_create_scoring_matrix(SEXP matchSEXP, SEXP mismatchSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type match(matchSEXP);
+    Rcpp::traits::input_parameter< int >::type mismatch(mismatchSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_scoring_matrix(match, mismatch));
+    return rcpp_result_gen;
+END_RCPP
+}
+// create_scores
+std::vector< std::vector<int> > create_scores(int match, int mismatch);
+RcppExport SEXP _rexmap_create_scores(SEXP matchSEXP, SEXP mismatchSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type match(matchSEXP);
+    Rcpp::traits::input_parameter< int >::type mismatch(mismatchSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_scores(match, mismatch));
+    return rcpp_result_gen;
+END_RCPP
+}
+// join_to_string
+std::string join_to_string(std::vector<std::string> str_vector);
+RcppExport SEXP _rexmap_join_to_string(SEXP str_vectorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type str_vector(str_vectorSEXP);
+    rcpp_result_gen = Rcpp::wrap(join_to_string(str_vector));
+    return rcpp_result_gen;
+END_RCPP
+}
+// align_seqs_and_quals
+std::vector<std::unordered_map<std::string, char>> align_seqs_and_quals(std::string& seq1, std::string& seq2, std::string& qua1, std::string& qua2, int match, int mismatch, int gap_p);
+RcppExport SEXP _rexmap_align_seqs_and_quals(SEXP seq1SEXP, SEXP seq2SEXP, SEXP qua1SEXP, SEXP qua2SEXP, SEXP matchSEXP, SEXP mismatchSEXP, SEXP gap_pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string& >::type seq1(seq1SEXP);
+    Rcpp::traits::input_parameter< std::string& >::type seq2(seq2SEXP);
+    Rcpp::traits::input_parameter< std::string& >::type qua1(qua1SEXP);
+    Rcpp::traits::input_parameter< std::string& >::type qua2(qua2SEXP);
+    Rcpp::traits::input_parameter< int >::type match(matchSEXP);
+    Rcpp::traits::input_parameter< int >::type mismatch(mismatchSEXP);
+    Rcpp::traits::input_parameter< int >::type gap_p(gap_pSEXP);
+    rcpp_result_gen = Rcpp::wrap(align_seqs_and_quals(seq1, seq2, qua1, qua2, match, mismatch, gap_p));
+    return rcpp_result_gen;
+END_RCPP
+}
+// test_fun
+void test_fun(std::vector<int> x);
+RcppExport SEXP _rexmap_test_fun(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<int> >::type x(xSEXP);
+    test_fun(x);
+    return R_NilValue;
+END_RCPP
+}
 // load_posterior
 std::vector< std::vector<int> > load_posterior(std::string filename);
 RcppExport SEXP _rexmap_load_posterior(SEXP filenameSEXP) {
@@ -74,25 +152,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// nwalign_endsfree_test
-Rcpp::CharacterVector nwalign_endsfree_test(std::string s1, std::string s2, std::string q1, std::string q2, int match, int mismatch);
-RcppExport SEXP _rexmap_nwalign_endsfree_test(SEXP s1SEXP, SEXP s2SEXP, SEXP q1SEXP, SEXP q2SEXP, SEXP matchSEXP, SEXP mismatchSEXP) {
+// string_to_vector_str
+std::vector<std::string> string_to_vector_str(std::string& str);
+RcppExport SEXP _rexmap_string_to_vector_str(SEXP strSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string >::type s1(s1SEXP);
-    Rcpp::traits::input_parameter< std::string >::type s2(s2SEXP);
-    Rcpp::traits::input_parameter< std::string >::type q1(q1SEXP);
-    Rcpp::traits::input_parameter< std::string >::type q2(q2SEXP);
-    Rcpp::traits::input_parameter< int >::type match(matchSEXP);
-    Rcpp::traits::input_parameter< int >::type mismatch(mismatchSEXP);
-    rcpp_result_gen = Rcpp::wrap(nwalign_endsfree_test(s1, s2, q1, q2, match, mismatch));
+    Rcpp::traits::input_parameter< std::string& >::type str(strSEXP);
+    rcpp_result_gen = Rcpp::wrap(string_to_vector_str(str));
+    return rcpp_result_gen;
+END_RCPP
+}
+// string_to_vector_int
+std::vector<int> string_to_vector_int(std::string& str);
+RcppExport SEXP _rexmap_string_to_vector_int(SEXP strSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string& >::type str(strSEXP);
+    rcpp_result_gen = Rcpp::wrap(string_to_vector_int(str));
     return rcpp_result_gen;
 END_RCPP
 }
 // C_mergepairs
-Rcpp::CharacterVector C_mergepairs(std::string s1, std::string s2, std::string q1, std::string q2, std::string posterior_match_file, std::string posterior_mismatch_file, int match, int mismatch, int gap_p, double min_pct_sim, int min_aln_len);
-RcppExport SEXP _rexmap_C_mergepairs(SEXP s1SEXP, SEXP s2SEXP, SEXP q1SEXP, SEXP q2SEXP, SEXP posterior_match_fileSEXP, SEXP posterior_mismatch_fileSEXP, SEXP matchSEXP, SEXP mismatchSEXP, SEXP gap_pSEXP, SEXP min_pct_simSEXP, SEXP min_aln_lenSEXP) {
+Rcpp::List C_mergepairs(std::string s1, std::string s2, std::string q1, std::string q2, std::string posterior_match_file, std::string posterior_mismatch_file, int match, int mismatch, int gap_p);
+RcppExport SEXP _rexmap_C_mergepairs(SEXP s1SEXP, SEXP s2SEXP, SEXP q1SEXP, SEXP q2SEXP, SEXP posterior_match_fileSEXP, SEXP posterior_mismatch_fileSEXP, SEXP matchSEXP, SEXP mismatchSEXP, SEXP gap_pSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -105,9 +189,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type match(matchSEXP);
     Rcpp::traits::input_parameter< int >::type mismatch(mismatchSEXP);
     Rcpp::traits::input_parameter< int >::type gap_p(gap_pSEXP);
-    Rcpp::traits::input_parameter< double >::type min_pct_sim(min_pct_simSEXP);
-    Rcpp::traits::input_parameter< int >::type min_aln_len(min_aln_lenSEXP);
-    rcpp_result_gen = Rcpp::wrap(C_mergepairs(s1, s2, q1, q2, posterior_match_file, posterior_mismatch_file, match, mismatch, gap_p, min_pct_sim, min_aln_len));
+    rcpp_result_gen = Rcpp::wrap(C_mergepairs(s1, s2, q1, q2, posterior_match_file, posterior_mismatch_file, match, mismatch, gap_p));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -133,9 +215,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rexmap_consensus_sequence", (DL_FUNC) &_rexmap_consensus_sequence, 1},
     {"_rexmap_hamming", (DL_FUNC) &_rexmap_hamming, 2},
     {"_rexmap_compare_alignment", (DL_FUNC) &_rexmap_compare_alignment, 2},
+    {"_rexmap_nt_to_int", (DL_FUNC) &_rexmap_nt_to_int, 1},
+    {"_rexmap_create_scoring_matrix", (DL_FUNC) &_rexmap_create_scoring_matrix, 2},
+    {"_rexmap_create_scores", (DL_FUNC) &_rexmap_create_scores, 2},
+    {"_rexmap_join_to_string", (DL_FUNC) &_rexmap_join_to_string, 1},
+    {"_rexmap_align_seqs_and_quals", (DL_FUNC) &_rexmap_align_seqs_and_quals, 7},
+    {"_rexmap_test_fun", (DL_FUNC) &_rexmap_test_fun, 1},
     {"_rexmap_load_posterior", (DL_FUNC) &_rexmap_load_posterior, 1},
-    {"_rexmap_nwalign_endsfree_test", (DL_FUNC) &_rexmap_nwalign_endsfree_test, 6},
-    {"_rexmap_C_mergepairs", (DL_FUNC) &_rexmap_C_mergepairs, 11},
+    {"_rexmap_string_to_vector_str", (DL_FUNC) &_rexmap_string_to_vector_str, 1},
+    {"_rexmap_string_to_vector_int", (DL_FUNC) &_rexmap_string_to_vector_int, 1},
+    {"_rexmap_C_mergepairs", (DL_FUNC) &_rexmap_C_mergepairs, 9},
     {"_rexmap_C_nwalign", (DL_FUNC) &_rexmap_C_nwalign, 5},
     {NULL, NULL, 0}
 };

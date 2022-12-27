@@ -1,12 +1,11 @@
-// #include <Rcpp.h>
+#include <Rcpp.h>
 #include "rexmap.h"
-using namespace std;
 
 // Precomputer posterior q scores for matching and mismatching bases
-vector< vector<int> > post_q_match;
-vector< vector<int> > post_q_mismatch;
-string posterior_match_file;
-string posterior_mismatch_file;
+std::vector< std::vector<int> > post_q_match;
+std::vector< std::vector<int> > post_q_mismatch;
+std::string posterior_match_file;
+std::string posterior_mismatch_file;
 
 // Scoring matrix
 int c_score[5][5];
@@ -14,11 +13,11 @@ int c_score[5][5];
 // Load pre-computed posterior quality scores for matching and mismatching
 // bases.
 // [[Rcpp::export]]
-vector< vector<int> > load_posterior (string filename) {
+std::vector< std::vector<int> > load_posterior (std::string filename) {
   // Load pre-computer posterior Q scores into a vector of vector of ints.
-  vector< vector<int> > out;
-  vector<int> row;
-  ifstream fin(filename.c_str());
+  std::vector< std::vector<int> > out;
+  std::vector<int> row;
+  std::ifstream fin(filename.c_str());
   int prev_q1 = 0, q1, q2, q;
   while (fin >> q1 >> q2 >> q) {
     if (q1 == prev_q1) {
@@ -118,9 +117,9 @@ void int2nt(char *oseq, const char *iseq) {
 }
 
 // [[Rcpp::export]]
-vector<string> string_to_vector_str(string &str) {
+std::vector<std::string> string_to_vector_str(std::string &str) {
   unsigned int str_length = str.size();
-  vector<string> str_vector(str_length);
+  std::vector<std::string> str_vector(str_length);
   for (size_t i = 0; i < str_length; i++) {
     str_vector[i] = str[i];
   }
@@ -128,10 +127,10 @@ vector<string> string_to_vector_str(string &str) {
 }
 
 // [[Rcpp::export]]
-vector<int> string_to_vector_int(string &str) {
+std::vector<int> string_to_vector_int(std::string &str) {
   unsigned int str_length = str.size();
   int int_nt;
-  vector<int> integers(str_length);
+  std::vector<int> integers(str_length);
   for (size_t i = 0; i < str_length; i++) {
     switch(str[i]) {
     case 'A':
@@ -152,216 +151,6 @@ vector<int> string_to_vector_int(string &str) {
     integers[i] = int_nt;
   }
   return(integers);
-}
-
-// [[Rcpp::export]]
-vector< vector<int> > create_scores(int match, int mismatch) {
-  vector< vector<int> > score_matrix(5, vector<int>(5));
-  for (int i = 0; i < 5; i++) {
-    for (int j = 0; j < 5; j++) {
-      score_matrix[i][j] = (i == j && i < 4) ? match : mismatch; 
-    }
-  }
-  return score_matrix;
-}
-
-unordered_map<char, unordered_map<char, int>> create_scoring_matrix(
-  int match, int mismatch
-) {
-  vector<char> letters = {'A', 'C', 'G', 'T', '-'};
-  unordered_map<char, unordered_map<char, int>> scores;
-  for (unsigned int i = 0; i < 5; i++) {
-    for (unsigned int j = 0; j < 5; j++) {
-      scores[letters[i]][letters[j]] = (i == j && i < 4) ? match : mismatch;
-    }
-  }
-  return scores;
-}
-
-void fill_dp_first_column(
-    vector<int> &d,
-    vector<int> &p,
-    int nrow,
-    int ncol
-) {
-  // Fill out left columns of d, p.
-  for (int i = 0; i < nrow; i++) {
-    d[i * ncol] = 0; // ends-free gap
-    p[i * ncol] = 3;
-  }
-  return;
-}
-
-void fill_dp_first_row(
-  vector<int> &d,
-  vector<int> &p,
-  int ncol
-) {
-  // Fill out top rows of d, p.
-  for (int j = 0; j < ncol; j++) {
-    d[j] = 0; // ends-free gap
-    p[j] = 2;
-  }
-  return;
-}
-
-void fill_dp_body(
-  vector<int> &d,
-  vector<int> &p,
-  vector<int> &seq1_int,
-  vector<int> &seq2_int,
-  vector< vector<int> > &align_scores,
-  unsigned int nrow,
-  unsigned int ncol,
-  int gap_p
-) {
-  int left, left_gap, up, up_gap, diag;
-  // Fill out the body of the DP matrix.
-  for (unsigned int i = 1; i < nrow; i++) { // column index
-    for (unsigned int j = 1; j < ncol; j++) { // row index
-      // Score for the left move.
-      left_gap = (i == nrow - 1) ? 0 : gap_p;
-      left = d[i * ncol + j - 1] + left_gap;
-      
-      // Score for the up move.
-      up_gap = (j == ncol - 1) ? 0 : gap_p;
-      up = d[(i - 1) * ncol + j] + up_gap;
-      
-      // Score for the diagonal move.
-      diag = d[(i - 1) * ncol + j - 1] + \
-        align_scores[seq1_int[i - 1] - 1][seq2_int[j - 1] - 1];
-      
-      // Break ties and fill in d,p.
-      if (up >= diag && up >= left) {
-        d[i * ncol + j] = up;
-        p[i * ncol + j] = 3;
-      } else if (left >= diag) {
-        d[i * ncol + j] = left;
-        p[i * ncol + j] = 2;
-      } else {
-        d[i * ncol + j] = diag;
-        p[i * ncol + j] = 1;
-      }
-    }
-  }
-  return;
-}
-
-// From https://stackoverflow.com/a/18703743/1272087
-// [[Rcpp::export]]
-string join_to_string(vector<string> str_vector) {
-  string str;
-  for (vector<string>::const_iterator i = str_vector.begin();
-       i != str_vector.end();
-       ++i) {
-    str += *i;
-  }
-  return str;  
-} 
-
-unordered_map<string, string> create_alignment(
-    vector<int> &p,
-    string &seq1,
-    string &seq2,
-    string &qua1,
-    string &qua2,
-    unsigned int nrow,
-    unsigned int ncol
-) {
-  unordered_map<string, string> alignment;
-  vector<string> aligned_seq1(nrow + ncol - 1);
-  vector<string> aligned_seq2(nrow + ncol - 1);
-  vector<string> aligned_qua1(nrow + ncol - 1);
-  vector<string> aligned_qua2(nrow + ncol - 1);
-  
-  // Trace back over p to form the alignment.
-  size_t aligned_index = 0;
-  unsigned int column_index = nrow - 1;
-  unsigned int row_index = ncol - 1;
-  
-  while (column_index > 0 || row_index > 0) {
-    switch (p[column_index * ncol + row_index]) {
-    case 1: // move diagonally up and left
-      column_index--;
-      row_index--;
-      aligned_seq1[aligned_index] = seq1[column_index];
-      aligned_seq2[aligned_index] = seq2[row_index];
-      aligned_qua1[aligned_index] = qua1[column_index];
-      aligned_qua2[aligned_index] = qua2[row_index];
-      break;
-    case 2: // move up
-      row_index--;
-      aligned_seq1[aligned_index] = '-';
-      aligned_seq2[aligned_index] = seq2[row_index];
-      aligned_qua1[aligned_index] = ' ';
-      aligned_qua2[aligned_index] = qua2[row_index];
-      break;
-    case 3: // move left
-      column_index--;
-      aligned_seq1[aligned_index] = seq1[column_index];
-      aligned_seq2[aligned_index] = '-';
-      aligned_qua1[aligned_index] = qua1[column_index];
-      aligned_qua2[aligned_index] = ' ';
-      break;
-    default:
-      Rcpp::stop("N-W Align out of range.");
-    }
-    aligned_index++;
-  }
-  
-  reverse(aligned_seq1.begin(), aligned_seq1.end());
-  reverse(aligned_seq2.begin(), aligned_seq2.end());
-  reverse(aligned_qua1.begin(), aligned_qua1.end());
-  reverse(aligned_qua2.begin(), aligned_qua2.end());
-  
-  alignment["sequence1"] = join_to_string(aligned_seq1);
-  alignment["sequence2"] = join_to_string(aligned_seq2);
-  alignment["quality1"] = join_to_string(aligned_qua1);
-  alignment["quality2"] = join_to_string(aligned_qua2);
-  
-  return alignment;
-}
-
-// [[Rcpp::export]]
-unordered_map<string, string> align_seqs_and_quals(
-    string &seq1,
-    string &seq2,
-    string &qua1,
-    string &qua2,
-    vector< vector<int> > align_scores,
-    int gap_p
-) {
-  unordered_map<string, string> alignment;
-  unsigned int nrow = seq1.size() + 1;
-  unsigned int ncol = seq2.size() + 1;
-  vector<int> seq1_int = string_to_vector_int(seq1);
-  vector<int> seq2_int = string_to_vector_int(seq2);
-  
-  vector<int> d(nrow * ncol); // dynprog score matrix
-  vector<int> p(nrow * ncol); // dynprog backtrack pointer matrix
-  fill_dp_first_row(d, p, ncol);
-  fill_dp_first_column(d, p, nrow, ncol);
-  fill_dp_body(d, p, seq1_int, seq2_int, align_scores, nrow, ncol, gap_p);
-  
-  alignment = create_alignment(p, seq1, seq2, qua1, qua2, nrow, ncol);
-  return(alignment);
-}
-
-// [[Rcpp::export]]
-unordered_map<string, string> merge_seqs_and_quals_alignment(
-  string sequence1,
-  string sequence2,
-  string quality1,
-  string quality2
-) {
-  unordered_map<string, string> alignment;
-  unsigned int alignment_length = sequence1.size();
-  for (unsigned int i = 0; i < alignment_length; i++) {
-    cout << "sequence character: " << sequence1[i] << "\n";
-    // quality
-  }
-  alignment["sequence1"] = sequence1;
-  return alignment;
 }
 
 char **himap_nwalign_endsfree(const char *s1, const char *s2,
@@ -567,10 +356,10 @@ char **himap_merge_alignment(char** al) {
 }
 
 // [[Rcpp::export]]
-Rcpp::List C_mergepairs(string s1, string s2,
-                                string q1, string q2,
-                                string posterior_match_file,
-                                string posterior_mismatch_file,
+Rcpp::List C_mergepairs(std::string s1, std::string s2,
+                        std::string q1, std::string q2,
+                        std::string posterior_match_file,
+                        std::string posterior_mismatch_file,
                                 int match, int mismatch, int gap_p) {
 
   // Alignment filter parameters
@@ -615,7 +404,7 @@ Rcpp::List C_mergepairs(string s1, string s2,
   const char *qs2 = q2.c_str();
 
   // Perform alignment and convert back to ACGT
-  cout << "Seq1: " << seq1;
+  std::cout << "Seq1: " << seq1;
   al = himap_nwalign_endsfree(seq1, seq2, qs1, qs2, c_score, gap_p);
   int2nt(al[0], al[0]);
   int2nt(al[1], al[1]);
@@ -665,11 +454,11 @@ Rcpp::List C_mergepairs(string s1, string s2,
   free(al);
   // Generate R-style return vector
   Rcpp::CharacterVector rval;
-  rval.push_back(string(merged[0]));
-  rval.push_back(string(merged[1]));
+  rval.push_back(std::string(merged[0]));
+  rval.push_back(std::string(merged[1]));
   Rcpp::List merged_out = Rcpp::List::create(
-    _["sequence"] = string(merged[0]),
-    _["quality"] = string(merged[1]),
+    _["sequence"] = std::string(merged[0]),
+    _["quality"] = std::string(merged[1]),
     _["similarity"] = pct_sim,
     _["overlap"] = len_overlap
   );
