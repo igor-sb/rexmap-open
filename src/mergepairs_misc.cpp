@@ -61,3 +61,21 @@ void print_flat_vector(const std::vector<T> &v, unsigned int ncol) {
   std::cout << "\n";
   return;
 }
+
+// Sum matching integer values from two hashmaps
+std::unordered_map<std::string, int> sum_values(
+    std::unordered_map<std::string, int> map1,
+    std::unordered_map<std::string, int> map2
+) {
+  std::unordered_map<std::string, int> sum;
+  
+  for (const auto &key_value : map1) {
+    sum[key_value.first] = key_value.second;
+  }
+  
+  for (const auto &key_value : map2) {
+    sum[key_value.first] += key_value.second;
+  }
+  
+  return sum;
+}

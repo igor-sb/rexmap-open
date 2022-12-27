@@ -68,77 +68,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// nt_to_int
-int nt_to_int(char& nt);
-RcppExport SEXP _rexmap_nt_to_int(SEXP ntSEXP) {
+// find_best_scoring_overlap
+std::unordered_map<std::string, std::vector<int>> find_best_scoring_overlap(std::vector<std::string>& sequences, std::vector<std::vector<int>> scoring_matrix, unsigned int gap_p);
+RcppExport SEXP _rexmap_find_best_scoring_overlap(SEXP sequencesSEXP, SEXP scoring_matrixSEXP, SEXP gap_pSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< char& >::type nt(ntSEXP);
-    rcpp_result_gen = Rcpp::wrap(nt_to_int(nt));
-    return rcpp_result_gen;
-END_RCPP
-}
-// create_scoring_matrix
-std::unordered_map<char, std::unordered_map<char, int>> create_scoring_matrix(int match, int mismatch);
-RcppExport SEXP _rexmap_create_scoring_matrix(SEXP matchSEXP, SEXP mismatchSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type match(matchSEXP);
-    Rcpp::traits::input_parameter< int >::type mismatch(mismatchSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_scoring_matrix(match, mismatch));
-    return rcpp_result_gen;
-END_RCPP
-}
-// create_scores
-std::vector< std::vector<int> > create_scores(int match, int mismatch);
-RcppExport SEXP _rexmap_create_scores(SEXP matchSEXP, SEXP mismatchSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type match(matchSEXP);
-    Rcpp::traits::input_parameter< int >::type mismatch(mismatchSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_scores(match, mismatch));
-    return rcpp_result_gen;
-END_RCPP
-}
-// join_to_string
-std::string join_to_string(std::vector<std::string> str_vector);
-RcppExport SEXP _rexmap_join_to_string(SEXP str_vectorSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type str_vector(str_vectorSEXP);
-    rcpp_result_gen = Rcpp::wrap(join_to_string(str_vector));
+    Rcpp::traits::input_parameter< std::vector<std::string>& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::vector<int>> >::type scoring_matrix(scoring_matrixSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type gap_p(gap_pSEXP);
+    rcpp_result_gen = Rcpp::wrap(find_best_scoring_overlap(sequences, scoring_matrix, gap_p));
     return rcpp_result_gen;
 END_RCPP
 }
 // align_seqs_and_quals
-std::vector<std::unordered_map<std::string, char>> align_seqs_and_quals(std::string& seq1, std::string& seq2, std::string& qua1, std::string& qua2, int match, int mismatch, int gap_p);
-RcppExport SEXP _rexmap_align_seqs_and_quals(SEXP seq1SEXP, SEXP seq2SEXP, SEXP qua1SEXP, SEXP qua2SEXP, SEXP matchSEXP, SEXP mismatchSEXP, SEXP gap_pSEXP) {
+std::vector<std::unordered_map<std::string, char>> align_seqs_and_quals(std::vector<std::string>& sequences, std::vector<std::string>& qualities, int match, int mismatch, int gap_p);
+RcppExport SEXP _rexmap_align_seqs_and_quals(SEXP sequencesSEXP, SEXP qualitiesSEXP, SEXP matchSEXP, SEXP mismatchSEXP, SEXP gap_pSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string& >::type seq1(seq1SEXP);
-    Rcpp::traits::input_parameter< std::string& >::type seq2(seq2SEXP);
-    Rcpp::traits::input_parameter< std::string& >::type qua1(qua1SEXP);
-    Rcpp::traits::input_parameter< std::string& >::type qua2(qua2SEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string>& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string>& >::type qualities(qualitiesSEXP);
     Rcpp::traits::input_parameter< int >::type match(matchSEXP);
     Rcpp::traits::input_parameter< int >::type mismatch(mismatchSEXP);
     Rcpp::traits::input_parameter< int >::type gap_p(gap_pSEXP);
-    rcpp_result_gen = Rcpp::wrap(align_seqs_and_quals(seq1, seq2, qua1, qua2, match, mismatch, gap_p));
+    rcpp_result_gen = Rcpp::wrap(align_seqs_and_quals(sequences, qualities, match, mismatch, gap_p));
     return rcpp_result_gen;
-END_RCPP
-}
-// test_fun
-void test_fun(std::vector<int> x);
-RcppExport SEXP _rexmap_test_fun(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<int> >::type x(xSEXP);
-    test_fun(x);
-    return R_NilValue;
 END_RCPP
 }
 // load_posterior
@@ -193,6 +148,40 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// to_int
+int to_int(char& nt);
+RcppExport SEXP _rexmap_to_int(SEXP ntSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< char& >::type nt(ntSEXP);
+    rcpp_result_gen = Rcpp::wrap(to_int(nt));
+    return rcpp_result_gen;
+END_RCPP
+}
+// create_scores
+std::vector< std::vector<int> > create_scores(int match, int mismatch);
+RcppExport SEXP _rexmap_create_scores(SEXP matchSEXP, SEXP mismatchSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type match(matchSEXP);
+    Rcpp::traits::input_parameter< int >::type mismatch(mismatchSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_scores(match, mismatch));
+    return rcpp_result_gen;
+END_RCPP
+}
+// join_to_string
+std::string join_to_string(std::vector<std::string> str_vector);
+RcppExport SEXP _rexmap_join_to_string(SEXP str_vectorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type str_vector(str_vectorSEXP);
+    rcpp_result_gen = Rcpp::wrap(join_to_string(str_vector));
+    return rcpp_result_gen;
+END_RCPP
+}
 // C_nwalign
 Rcpp::CharacterVector C_nwalign(std::string s1, std::string s2, int match, int mismatch, int indel);
 RcppExport SEXP _rexmap_C_nwalign(SEXP s1SEXP, SEXP s2SEXP, SEXP matchSEXP, SEXP mismatchSEXP, SEXP indelSEXP) {
@@ -215,16 +204,15 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rexmap_consensus_sequence", (DL_FUNC) &_rexmap_consensus_sequence, 1},
     {"_rexmap_hamming", (DL_FUNC) &_rexmap_hamming, 2},
     {"_rexmap_compare_alignment", (DL_FUNC) &_rexmap_compare_alignment, 2},
-    {"_rexmap_nt_to_int", (DL_FUNC) &_rexmap_nt_to_int, 1},
-    {"_rexmap_create_scoring_matrix", (DL_FUNC) &_rexmap_create_scoring_matrix, 2},
-    {"_rexmap_create_scores", (DL_FUNC) &_rexmap_create_scores, 2},
-    {"_rexmap_join_to_string", (DL_FUNC) &_rexmap_join_to_string, 1},
-    {"_rexmap_align_seqs_and_quals", (DL_FUNC) &_rexmap_align_seqs_and_quals, 7},
-    {"_rexmap_test_fun", (DL_FUNC) &_rexmap_test_fun, 1},
+    {"_rexmap_find_best_scoring_overlap", (DL_FUNC) &_rexmap_find_best_scoring_overlap, 3},
+    {"_rexmap_align_seqs_and_quals", (DL_FUNC) &_rexmap_align_seqs_and_quals, 5},
     {"_rexmap_load_posterior", (DL_FUNC) &_rexmap_load_posterior, 1},
     {"_rexmap_string_to_vector_str", (DL_FUNC) &_rexmap_string_to_vector_str, 1},
     {"_rexmap_string_to_vector_int", (DL_FUNC) &_rexmap_string_to_vector_int, 1},
     {"_rexmap_C_mergepairs", (DL_FUNC) &_rexmap_C_mergepairs, 9},
+    {"_rexmap_to_int", (DL_FUNC) &_rexmap_to_int, 1},
+    {"_rexmap_create_scores", (DL_FUNC) &_rexmap_create_scores, 2},
+    {"_rexmap_join_to_string", (DL_FUNC) &_rexmap_join_to_string, 1},
     {"_rexmap_C_nwalign", (DL_FUNC) &_rexmap_C_nwalign, 5},
     {NULL, NULL, 0}
 };
