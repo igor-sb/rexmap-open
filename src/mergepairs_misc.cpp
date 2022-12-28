@@ -1,4 +1,4 @@
-#include "rexmap.h"
+#include "mergepairs.h"
 #include <cstdio>
 // [[Rcpp::plugins(cpp11)]]
 
@@ -25,7 +25,7 @@ int to_int(char &nt) {
 }
 
 // [[Rcpp::export]]
-std::vector< std::vector<int> > create_scores(int match, int mismatch) {
+std::vector< std::vector<int> > create_scoring_matrix(int match, int mismatch) {
   std::vector< std::vector<int> > score_matrix(5, std::vector<int>(5));
   for (int i = 0; i < 5; i++) {
     for (int j = 0; j < 5; j++) {
@@ -47,8 +47,8 @@ std::string join_to_string(std::vector<std::string> str_vector) {
   return str;  
 }
 
-template <typename T>
-void print_flat_vector(const std::vector<T> &v, unsigned int ncol) {
+// template <typename T>
+void print_flat_vector(const std::vector<int> &v, unsigned int ncol) {
   unsigned int flat_id;
   unsigned int flat_size = v.size();
   char buffer[5];

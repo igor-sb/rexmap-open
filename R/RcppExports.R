@@ -21,12 +21,20 @@ compare_alignment <- function(s1, s2) {
     .Call('_rexmap_compare_alignment', PACKAGE = 'rexmap', s1, s2)
 }
 
+get_indexes <- function(column, row, ncol) {
+    .Call('_rexmap_get_indexes', PACKAGE = 'rexmap', column, row, ncol)
+}
+
+create_alignment <- function(path, sequences, qualities) {
+    .Call('_rexmap_create_alignment', PACKAGE = 'rexmap', path, sequences, qualities)
+}
+
 find_best_scoring_overlap <- function(sequences, scoring_matrix, gap_p) {
     .Call('_rexmap_find_best_scoring_overlap', PACKAGE = 'rexmap', sequences, scoring_matrix, gap_p)
 }
 
-align_seqs_and_quals <- function(sequences, qualities, match, mismatch, gap_p) {
-    .Call('_rexmap_align_seqs_and_quals', PACKAGE = 'rexmap', sequences, qualities, match, mismatch, gap_p)
+merge_alignment <- function(alignment, qual_merge_map) {
+    .Call('_rexmap_merge_alignment', PACKAGE = 'rexmap', alignment, qual_merge_map)
 }
 
 load_posterior <- function(filename) {
@@ -45,12 +53,24 @@ C_mergepairs <- function(s1, s2, q1, q2, posterior_match_file, posterior_mismatc
     .Call('_rexmap_C_mergepairs', PACKAGE = 'rexmap', s1, s2, q1, q2, posterior_match_file, posterior_mismatch_file, match, mismatch, gap_p)
 }
 
+test_calc_score_path_first_row <- function(score, path, ncol) {
+    .Call('_rexmap_test_calc_score_path_first_row', PACKAGE = 'rexmap', score, path, ncol)
+}
+
+test_calc_score_path_first_column <- function(score, path, nrow, ncol, gap_p) {
+    .Call('_rexmap_test_calc_score_path_first_column', PACKAGE = 'rexmap', score, path, nrow, ncol, gap_p)
+}
+
+test_calc_score_path_other <- function(score, path, sequences, align_scores, gap_p) {
+    .Call('_rexmap_test_calc_score_path_other', PACKAGE = 'rexmap', score, path, sequences, align_scores, gap_p)
+}
+
 to_int <- function(nt) {
     .Call('_rexmap_to_int', PACKAGE = 'rexmap', nt)
 }
 
-create_scores <- function(match, mismatch) {
-    .Call('_rexmap_create_scores', PACKAGE = 'rexmap', match, mismatch)
+create_scoring_matrix <- function(match, mismatch) {
+    .Call('_rexmap_create_scoring_matrix', PACKAGE = 'rexmap', match, mismatch)
 }
 
 join_to_string <- function(str_vector) {

@@ -68,6 +68,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_indexes
+std::unordered_map<std::string, unsigned int> get_indexes(unsigned int& column, unsigned int& row, unsigned int& ncol);
+RcppExport SEXP _rexmap_get_indexes(SEXP columnSEXP, SEXP rowSEXP, SEXP ncolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int& >::type column(columnSEXP);
+    Rcpp::traits::input_parameter< unsigned int& >::type row(rowSEXP);
+    Rcpp::traits::input_parameter< unsigned int& >::type ncol(ncolSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_indexes(column, row, ncol));
+    return rcpp_result_gen;
+END_RCPP
+}
+// create_alignment
+std::vector<std::unordered_map<std::string, char>> create_alignment(std::vector<int>& path, std::vector<std::string>& sequences, std::vector<std::string>& qualities);
+RcppExport SEXP _rexmap_create_alignment(SEXP pathSEXP, SEXP sequencesSEXP, SEXP qualitiesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<int>& >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string>& >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string>& >::type qualities(qualitiesSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_alignment(path, sequences, qualities));
+    return rcpp_result_gen;
+END_RCPP
+}
 // find_best_scoring_overlap
 std::unordered_map<std::string, std::vector<int>> find_best_scoring_overlap(std::vector<std::string>& sequences, std::vector<std::vector<int>> scoring_matrix, unsigned int gap_p);
 RcppExport SEXP _rexmap_find_best_scoring_overlap(SEXP sequencesSEXP, SEXP scoring_matrixSEXP, SEXP gap_pSEXP) {
@@ -81,18 +107,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// align_seqs_and_quals
-std::vector<std::unordered_map<std::string, char>> align_seqs_and_quals(std::vector<std::string>& sequences, std::vector<std::string>& qualities, int match, int mismatch, int gap_p);
-RcppExport SEXP _rexmap_align_seqs_and_quals(SEXP sequencesSEXP, SEXP qualitiesSEXP, SEXP matchSEXP, SEXP mismatchSEXP, SEXP gap_pSEXP) {
+// merge_alignment
+std::unordered_map<std::string, std::string> merge_alignment(std::vector<std::unordered_map<std::string, char>>& alignment, std::unordered_map<std::string, std::vector<std::vector<unsigned int>>>& qual_merge_map);
+RcppExport SEXP _rexmap_merge_alignment(SEXP alignmentSEXP, SEXP qual_merge_mapSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<std::string>& >::type sequences(sequencesSEXP);
-    Rcpp::traits::input_parameter< std::vector<std::string>& >::type qualities(qualitiesSEXP);
-    Rcpp::traits::input_parameter< int >::type match(matchSEXP);
-    Rcpp::traits::input_parameter< int >::type mismatch(mismatchSEXP);
-    Rcpp::traits::input_parameter< int >::type gap_p(gap_pSEXP);
-    rcpp_result_gen = Rcpp::wrap(align_seqs_and_quals(sequences, qualities, match, mismatch, gap_p));
+    Rcpp::traits::input_parameter< std::vector<std::unordered_map<std::string, char>>& >::type alignment(alignmentSEXP);
+    Rcpp::traits::input_parameter< std::unordered_map<std::string, std::vector<std::vector<unsigned int>>>& >::type qual_merge_map(qual_merge_mapSEXP);
+    rcpp_result_gen = Rcpp::wrap(merge_alignment(alignment, qual_merge_map));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -148,6 +171,49 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// test_calc_score_path_first_row
+std::unordered_map<std::string, std::vector<int>> test_calc_score_path_first_row(std::vector<int>& score, std::vector<int>& path, int ncol);
+RcppExport SEXP _rexmap_test_calc_score_path_first_row(SEXP scoreSEXP, SEXP pathSEXP, SEXP ncolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<int>& >::type score(scoreSEXP);
+    Rcpp::traits::input_parameter< std::vector<int>& >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< int >::type ncol(ncolSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_calc_score_path_first_row(score, path, ncol));
+    return rcpp_result_gen;
+END_RCPP
+}
+// test_calc_score_path_first_column
+std::unordered_map<std::string, std::vector<int>> test_calc_score_path_first_column(std::vector<int> score, std::vector<int> path, int nrow, int ncol, int gap_p);
+RcppExport SEXP _rexmap_test_calc_score_path_first_column(SEXP scoreSEXP, SEXP pathSEXP, SEXP nrowSEXP, SEXP ncolSEXP, SEXP gap_pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<int> >::type score(scoreSEXP);
+    Rcpp::traits::input_parameter< std::vector<int> >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< int >::type nrow(nrowSEXP);
+    Rcpp::traits::input_parameter< int >::type ncol(ncolSEXP);
+    Rcpp::traits::input_parameter< int >::type gap_p(gap_pSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_calc_score_path_first_column(score, path, nrow, ncol, gap_p));
+    return rcpp_result_gen;
+END_RCPP
+}
+// test_calc_score_path_other
+std::unordered_map<std::string, std::vector<int>> test_calc_score_path_other(std::vector<int> score, std::vector<int> path, std::vector<std::string> sequences, std::vector<std::vector<int>> align_scores, int gap_p);
+RcppExport SEXP _rexmap_test_calc_score_path_other(SEXP scoreSEXP, SEXP pathSEXP, SEXP sequencesSEXP, SEXP align_scoresSEXP, SEXP gap_pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<int> >::type score(scoreSEXP);
+    Rcpp::traits::input_parameter< std::vector<int> >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type sequences(sequencesSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::vector<int>> >::type align_scores(align_scoresSEXP);
+    Rcpp::traits::input_parameter< int >::type gap_p(gap_pSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_calc_score_path_other(score, path, sequences, align_scores, gap_p));
+    return rcpp_result_gen;
+END_RCPP
+}
 // to_int
 int to_int(char& nt);
 RcppExport SEXP _rexmap_to_int(SEXP ntSEXP) {
@@ -159,15 +225,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// create_scores
-std::vector< std::vector<int> > create_scores(int match, int mismatch);
-RcppExport SEXP _rexmap_create_scores(SEXP matchSEXP, SEXP mismatchSEXP) {
+// create_scoring_matrix
+std::vector< std::vector<int> > create_scoring_matrix(int match, int mismatch);
+RcppExport SEXP _rexmap_create_scoring_matrix(SEXP matchSEXP, SEXP mismatchSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type match(matchSEXP);
     Rcpp::traits::input_parameter< int >::type mismatch(mismatchSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_scores(match, mismatch));
+    rcpp_result_gen = Rcpp::wrap(create_scoring_matrix(match, mismatch));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -204,14 +270,19 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rexmap_consensus_sequence", (DL_FUNC) &_rexmap_consensus_sequence, 1},
     {"_rexmap_hamming", (DL_FUNC) &_rexmap_hamming, 2},
     {"_rexmap_compare_alignment", (DL_FUNC) &_rexmap_compare_alignment, 2},
+    {"_rexmap_get_indexes", (DL_FUNC) &_rexmap_get_indexes, 3},
+    {"_rexmap_create_alignment", (DL_FUNC) &_rexmap_create_alignment, 3},
     {"_rexmap_find_best_scoring_overlap", (DL_FUNC) &_rexmap_find_best_scoring_overlap, 3},
-    {"_rexmap_align_seqs_and_quals", (DL_FUNC) &_rexmap_align_seqs_and_quals, 5},
+    {"_rexmap_merge_alignment", (DL_FUNC) &_rexmap_merge_alignment, 2},
     {"_rexmap_load_posterior", (DL_FUNC) &_rexmap_load_posterior, 1},
     {"_rexmap_string_to_vector_str", (DL_FUNC) &_rexmap_string_to_vector_str, 1},
     {"_rexmap_string_to_vector_int", (DL_FUNC) &_rexmap_string_to_vector_int, 1},
     {"_rexmap_C_mergepairs", (DL_FUNC) &_rexmap_C_mergepairs, 9},
+    {"_rexmap_test_calc_score_path_first_row", (DL_FUNC) &_rexmap_test_calc_score_path_first_row, 3},
+    {"_rexmap_test_calc_score_path_first_column", (DL_FUNC) &_rexmap_test_calc_score_path_first_column, 5},
+    {"_rexmap_test_calc_score_path_other", (DL_FUNC) &_rexmap_test_calc_score_path_other, 5},
     {"_rexmap_to_int", (DL_FUNC) &_rexmap_to_int, 1},
-    {"_rexmap_create_scores", (DL_FUNC) &_rexmap_create_scores, 2},
+    {"_rexmap_create_scoring_matrix", (DL_FUNC) &_rexmap_create_scoring_matrix, 2},
     {"_rexmap_join_to_string", (DL_FUNC) &_rexmap_join_to_string, 1},
     {"_rexmap_C_nwalign", (DL_FUNC) &_rexmap_C_nwalign, 5},
     {NULL, NULL, 0}
