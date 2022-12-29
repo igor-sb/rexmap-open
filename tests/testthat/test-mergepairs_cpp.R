@@ -132,12 +132,20 @@ test_that("mergepairs c++: create alignment", {
       "d", "u", "u", "u")
   )
   alignment <- create_alignment(path, sequences, qualities)
-  alignment_strings <- Reduce(rbind, alignment, right = TRUE) |>
-    apply(2, paste, collapse = "")
-  
-  expect_identical(
-    alignment_strings,
-    c(seq1 = "--AGCGTA", qua2 = "BCAGH   ", seq2 = "TTAGC---", qua1 = "  ADGFHI"
-    )
-  )
+  true_alignment <- c(qua1 = "  ADGFHI", qua2 = "BCAGH   ",
+                      seq1 = "--AGCGTA", seq2 = "TTAGC---")
+  expect_identical(alignment, true_alignment)
+  # alignment_strings <- Reduce(rbind, alignment, right = TRUE) |>
+  #   apply(2, paste, collapse = "")
+  # 
+  # expect_identical(
+  #   alignment_strings,
+  #   c(seq1 = "--AGCGTA", qua2 = "BCAGH   ", seq2 = "TTAGC---", qua1 = "  ADGFHI"
+  #   )
+  # )
+})
+
+test_that("mergepairs: c++: merge alignment", {
+  true_alignment <- c(qua1 = "  ADGFHI", qua2 = "BCAGH   ",
+                      seq1 = "--AGCGTA", seq2 = "TTAGC---")
 })

@@ -131,30 +131,57 @@ void calc_score_path_other(
 }
 
 // [[Rcpp::export]]
-std::vector<std::unordered_map<std::string, char>> create_alignment(
+std::map<std::string, std::string> create_alignment(
     std::vector<int> &path,
     std::vector<std::string> &sequences,
     std::vector<std::string> &qualities
 ) {
   unsigned int ncol = sequences[0].size() + 1, nrow = sequences[1].size() + 1;
   unsigned int col = ncol - 1, row = nrow - 1, flat_id;
-  std::vector<std::unordered_map<std::string, char>> aligned;
-  std::unordered_map<std::string, char> chars;
+  // std::vector<std::unordered_map<std::string, std::string>> aligned;
+  std::map<std::string, std::string> aligned;
+  // std::unordered_map<std::string, std::string> chars;
   
   while (col > 0 || row > 0) {
     flat_id = flat_index(col, row, ncol);
-    chars = {{"seq1", '-'}, {"seq2", '-'}, {"qua1", ' '}, {"qua2", ' '}};
-    if (path[flat_id] == int('d') || path[flat_id] == int('l')) {
-      col--;
-      chars["seq1"] = sequences[0][col];
-      chars["qua1"] = qualities[0][col];
+    switch(path[flat_id]) {
+      case int('d'):
+        col--; row--;
+        aligned["seq1"].push_back(sequences[0][col]);
+        aligned["qua1"].push_back(qualities[0][col]);
+        aligned["seq2"].push_back(sequences[1][row]);
+        aligned["qua2"].push_back(qualities[1][row]);
+        break;
+      case int('l'):
+        col--;
+        aligned["seq1"].push_back(sequences[0][col]);
+        aligned["qua1"].push_back(qualities[0][col]);
+        aligned["seq2"].push_back('-');
+        aligned["qua2"].push_back(' ');
+        break;
+      case int('u'):
+        row--;
+        aligned["seq1"].push_back('-');
+        aligned["qua1"].push_back(' ');
+        aligned["seq2"].push_back(sequences[1][row]);
+        aligned["qua2"].push_back(qualities[1][row]);
+        break;
+      default:
+        Rcpp::stop("Invalid backtracking value.");
     }
-    if (path[flat_id] == int('d') || path[flat_id] == int('u')) {
-      row--;
-      chars["seq2"] = sequences[1][row];
-      chars["qua2"] = qualities[1][row];
-    }
-    aligned.push_back(chars);
+      
+    // chars = {{"seq1", "-"}, {"seq2", "-"}, {"qua1", " "}, {"qua2", " "}};
+    // if (path[flat_id] == int('d') || path[flat_id] == int('l')) {
+    //   col--;
+    //   chars["seq1"] = sequences[0][col];
+    //   chars["qua1"] = qualities[0][col];
+    // }
+    // if (path[flat_id] == int('d') || path[flat_id] == int('u')) {
+    //   row--;
+    //   chars["seq2"] = sequences[1][row];
+    //   chars["qua2"] = qualities[1][row];
+    // }
+    // aligned.push_back(chars);
   }
   
   return aligned;
@@ -179,12 +206,13 @@ std::unordered_map<std::string, std::vector<int>> find_best_scoring_overlap(
 }
 
 // # [[Rcpp::export]]
-std::unordered_map<std::string, std::string> merge_alignment(
-  std::vector<std::unordered_map<std::string, char>> &alignment,
-  std::unordered_map<std::string, std::vector<std::vector<unsigned int>>>
-    &qual_merge_map
+std::map<std::string, std::string> merge_alignment(
+  std::vector<std::map<std::string, std::string>> alignment
 ) {
-  std::unordered_map<std::string, std::string> seqs_and_quals;
+  std::map<std::string, std::string> seqs_and_quals;
+  for (auto al = alignment.rbegin(); al != alignment.rend(); al++) {
+    std::cout << (*al).at("seq1") << std::endl;
+  }
   // iterate alignment in reverse
   //  check q score, then select the letter with larger score
   //  calculate posterior q
@@ -192,7 +220,7 @@ std::unordered_map<std::string, std::string> merge_alignment(
 }
 
 // #[[Rcpp::export]]
-std::vector<std::unordered_map<std::string, char>> align_seqs_and_quals(
+std::map<std::string, std::string> align_seqs_and_quals(
     std::vector<std::string> &sequences,
     std::vector<std::string> &qualities,
     std::unordered_map<std::string, int> &alignment_scores,
@@ -201,7 +229,7 @@ std::vector<std::unordered_map<std::string, char>> align_seqs_and_quals(
     // int mismatch,
     // int gap_p
 ) {
-  std::vector<std::unordered_map<std::string, char>> alignment;
+  std::map<std::string, std::string> alignment;
   std::vector<std::vector<int>> scoring_matrix;
   std::unordered_map<std::string, std::vector<int>> score_and_path;
   

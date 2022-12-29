@@ -33,10 +33,6 @@ find_best_scoring_overlap <- function(sequences, scoring_matrix, gap_p) {
     .Call('_rexmap_find_best_scoring_overlap', PACKAGE = 'rexmap', sequences, scoring_matrix, gap_p)
 }
 
-merge_alignment <- function(alignment, qual_merge_map) {
-    .Call('_rexmap_merge_alignment', PACKAGE = 'rexmap', alignment, qual_merge_map)
-}
-
 load_posterior <- function(filename) {
     .Call('_rexmap_load_posterior', PACKAGE = 'rexmap', filename)
 }

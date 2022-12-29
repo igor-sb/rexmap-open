@@ -82,7 +82,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // create_alignment
-std::vector<std::unordered_map<std::string, char>> create_alignment(std::vector<int>& path, std::vector<std::string>& sequences, std::vector<std::string>& qualities);
+std::map<std::string, std::string> create_alignment(std::vector<int>& path, std::vector<std::string>& sequences, std::vector<std::string>& qualities);
 RcppExport SEXP _rexmap_create_alignment(SEXP pathSEXP, SEXP sequencesSEXP, SEXP qualitiesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -104,18 +104,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::vector<std::vector<int>> >::type scoring_matrix(scoring_matrixSEXP);
     Rcpp::traits::input_parameter< unsigned int >::type gap_p(gap_pSEXP);
     rcpp_result_gen = Rcpp::wrap(find_best_scoring_overlap(sequences, scoring_matrix, gap_p));
-    return rcpp_result_gen;
-END_RCPP
-}
-// merge_alignment
-std::unordered_map<std::string, std::string> merge_alignment(std::vector<std::unordered_map<std::string, char>>& alignment, std::unordered_map<std::string, std::vector<std::vector<unsigned int>>>& qual_merge_map);
-RcppExport SEXP _rexmap_merge_alignment(SEXP alignmentSEXP, SEXP qual_merge_mapSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<std::unordered_map<std::string, char>>& >::type alignment(alignmentSEXP);
-    Rcpp::traits::input_parameter< std::unordered_map<std::string, std::vector<std::vector<unsigned int>>>& >::type qual_merge_map(qual_merge_mapSEXP);
-    rcpp_result_gen = Rcpp::wrap(merge_alignment(alignment, qual_merge_map));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -273,7 +261,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rexmap_get_indexes", (DL_FUNC) &_rexmap_get_indexes, 3},
     {"_rexmap_create_alignment", (DL_FUNC) &_rexmap_create_alignment, 3},
     {"_rexmap_find_best_scoring_overlap", (DL_FUNC) &_rexmap_find_best_scoring_overlap, 3},
-    {"_rexmap_merge_alignment", (DL_FUNC) &_rexmap_merge_alignment, 2},
     {"_rexmap_load_posterior", (DL_FUNC) &_rexmap_load_posterior, 1},
     {"_rexmap_string_to_vector_str", (DL_FUNC) &_rexmap_string_to_vector_str, 1},
     {"_rexmap_string_to_vector_int", (DL_FUNC) &_rexmap_string_to_vector_int, 1},
