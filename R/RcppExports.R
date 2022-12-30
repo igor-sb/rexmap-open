@@ -25,12 +25,8 @@ get_indexes <- function(column, row, ncol) {
     .Call('_rexmap_get_indexes', PACKAGE = 'rexmap', column, row, ncol)
 }
 
-create_alignment <- function(path, sequences, qualities) {
-    .Call('_rexmap_create_alignment', PACKAGE = 'rexmap', path, sequences, qualities)
-}
-
-find_best_scoring_overlap <- function(sequences, scoring_matrix, gap_p) {
-    .Call('_rexmap_find_best_scoring_overlap', PACKAGE = 'rexmap', sequences, scoring_matrix, gap_p)
+get_merged_qualities <- function(q1char, q2char, merged_qualities) {
+    .Call('_rexmap_get_merged_qualities', PACKAGE = 'rexmap', q1char, q2char, merged_qualities)
 }
 
 load_posterior <- function(filename) {
@@ -59,6 +55,14 @@ test_calc_score_path_first_column <- function(score, path, nrow, ncol, gap_p) {
 
 test_calc_score_path_other <- function(score, path, sequences, align_scores, gap_p) {
     .Call('_rexmap_test_calc_score_path_other', PACKAGE = 'rexmap', score, path, sequences, align_scores, gap_p)
+}
+
+test_find_best_scoring_path <- function(sequences, scoring_matrix, gap_p) {
+    .Call('_rexmap_test_find_best_scoring_path', PACKAGE = 'rexmap', sequences, scoring_matrix, gap_p)
+}
+
+test_merge_by_path_backtrack <- function(path, sequences, qualities, merged_qualities_match, merged_qualities_mismatch) {
+    .Call('_rexmap_test_merge_by_path_backtrack', PACKAGE = 'rexmap', path, sequences, qualities, merged_qualities_match, merged_qualities_mismatch)
 }
 
 to_int <- function(nt) {

@@ -15,3 +15,11 @@ dp_path_matrix <- function(path, ncol) {
 dp_score_matrix <- function(score, ncol) {
   matrix(score, ncol = ncol, byrow = TRUE)
 }
+
+quality_string_to_integer <- function(quality) {
+  strsplit(quality, "") |> unname() |> unlist() |> chr_to_int() - 33L
+}
+
+quality_integer_to_string <- function(integers) {
+  paste(int_to_chr(integers + 33L), collapse = "")
+}
