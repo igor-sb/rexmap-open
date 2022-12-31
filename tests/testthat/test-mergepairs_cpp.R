@@ -162,3 +162,7 @@ test_that("mergepairs c++: merge alignment from path", {
   expect_identical(unname(alignment["quality"]),
                    quality_integer_to_string(true_qualities))
 })
+
+test_that("mergepairs c++: merge_seqs_and_quals", {
+  
+})

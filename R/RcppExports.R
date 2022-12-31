@@ -21,12 +21,12 @@ compare_alignment <- function(s1, s2) {
     .Call('_rexmap_compare_alignment', PACKAGE = 'rexmap', s1, s2)
 }
 
-get_indexes <- function(column, row, ncol) {
-    .Call('_rexmap_get_indexes', PACKAGE = 'rexmap', column, row, ncol)
-}
-
 get_merged_qualities <- function(q1char, q2char, merged_qualities) {
     .Call('_rexmap_get_merged_qualities', PACKAGE = 'rexmap', q1char, q2char, merged_qualities)
+}
+
+align_seqs_and_quals <- function(sequence_forward, sequence_reverse, quality_forward, quality_reverse, alignment_scores, merged_qualities_match, merged_qualities_mismatch) {
+    .Call('_rexmap_align_seqs_and_quals', PACKAGE = 'rexmap', sequence_forward, sequence_reverse, quality_forward, quality_reverse, alignment_scores, merged_qualities_match, merged_qualities_mismatch)
 }
 
 load_posterior <- function(filename) {
@@ -73,8 +73,8 @@ create_scoring_matrix <- function(match, mismatch) {
     .Call('_rexmap_create_scoring_matrix', PACKAGE = 'rexmap', match, mismatch)
 }
 
-join_to_string <- function(str_vector) {
-    .Call('_rexmap_join_to_string', PACKAGE = 'rexmap', str_vector)
+get_indexes <- function(column, row, ncol) {
+    .Call('_rexmap_get_indexes', PACKAGE = 'rexmap', column, row, ncol)
 }
 
 C_nwalign <- function(s1, s2, match, mismatch, indel) {

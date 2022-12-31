@@ -2,6 +2,15 @@
 #include <cstdio>
 // [[Rcpp::plugins(cpp11)]]
 
+// 2D to 1D array index conversion
+unsigned int flat_index(
+    unsigned int column_index,
+    unsigned int row_index,
+    unsigned int ncol
+) {
+  return row_index * ncol + column_index;
+}
+
 // [[Rcpp::export]]
 int to_int(char &nt) {
   int int_nt;
@@ -33,18 +42,6 @@ std::vector< std::vector<int> > create_scoring_matrix(int match, int mismatch) {
     }
   }
   return score_matrix;
-}
-
-// From https://stackoverflow.com/a/18703743/1272087
-// [[Rcpp::export]]
-std::string join_to_string(std::vector<std::string> str_vector) {
-  std::string str;
-  for (std::vector<std::string>::const_iterator i = str_vector.begin();
-       i != str_vector.end();
-       ++i) {
-    str += *i;
-  }
-  return str;  
 }
 
 // template <typename T>

@@ -68,19 +68,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// get_indexes
-std::unordered_map<std::string, unsigned int> get_indexes(unsigned int& column, unsigned int& row, unsigned int& ncol);
-RcppExport SEXP _rexmap_get_indexes(SEXP columnSEXP, SEXP rowSEXP, SEXP ncolSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< unsigned int& >::type column(columnSEXP);
-    Rcpp::traits::input_parameter< unsigned int& >::type row(rowSEXP);
-    Rcpp::traits::input_parameter< unsigned int& >::type ncol(ncolSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_indexes(column, row, ncol));
-    return rcpp_result_gen;
-END_RCPP
-}
 // get_merged_qualities
 char get_merged_qualities(char& q1char, char& q2char, std::vector<std::vector<unsigned int>>& merged_qualities);
 RcppExport SEXP _rexmap_get_merged_qualities(SEXP q1charSEXP, SEXP q2charSEXP, SEXP merged_qualitiesSEXP) {
@@ -91,6 +78,23 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< char& >::type q2char(q2charSEXP);
     Rcpp::traits::input_parameter< std::vector<std::vector<unsigned int>>& >::type merged_qualities(merged_qualitiesSEXP);
     rcpp_result_gen = Rcpp::wrap(get_merged_qualities(q1char, q2char, merged_qualities));
+    return rcpp_result_gen;
+END_RCPP
+}
+// align_seqs_and_quals
+std::unordered_map<std::string, std::string> align_seqs_and_quals(std::string& sequence_forward, std::string& sequence_reverse, std::string& quality_forward, std::string& quality_reverse, std::vector<int>& alignment_scores, std::vector<std::vector<unsigned int>>& merged_qualities_match, std::vector<std::vector<unsigned int>>& merged_qualities_mismatch);
+RcppExport SEXP _rexmap_align_seqs_and_quals(SEXP sequence_forwardSEXP, SEXP sequence_reverseSEXP, SEXP quality_forwardSEXP, SEXP quality_reverseSEXP, SEXP alignment_scoresSEXP, SEXP merged_qualities_matchSEXP, SEXP merged_qualities_mismatchSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string& >::type sequence_forward(sequence_forwardSEXP);
+    Rcpp::traits::input_parameter< std::string& >::type sequence_reverse(sequence_reverseSEXP);
+    Rcpp::traits::input_parameter< std::string& >::type quality_forward(quality_forwardSEXP);
+    Rcpp::traits::input_parameter< std::string& >::type quality_reverse(quality_reverseSEXP);
+    Rcpp::traits::input_parameter< std::vector<int>& >::type alignment_scores(alignment_scoresSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::vector<unsigned int>>& >::type merged_qualities_match(merged_qualities_matchSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::vector<unsigned int>>& >::type merged_qualities_mismatch(merged_qualities_mismatchSEXP);
+    rcpp_result_gen = Rcpp::wrap(align_seqs_and_quals(sequence_forward, sequence_reverse, quality_forward, quality_reverse, alignment_scores, merged_qualities_match, merged_qualities_mismatch));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -240,14 +244,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// join_to_string
-std::string join_to_string(std::vector<std::string> str_vector);
-RcppExport SEXP _rexmap_join_to_string(SEXP str_vectorSEXP) {
+// get_indexes
+std::unordered_map<std::string, unsigned int> get_indexes(unsigned int& column, unsigned int& row, unsigned int& ncol);
+RcppExport SEXP _rexmap_get_indexes(SEXP columnSEXP, SEXP rowSEXP, SEXP ncolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type str_vector(str_vectorSEXP);
-    rcpp_result_gen = Rcpp::wrap(join_to_string(str_vector));
+    Rcpp::traits::input_parameter< unsigned int& >::type column(columnSEXP);
+    Rcpp::traits::input_parameter< unsigned int& >::type row(rowSEXP);
+    Rcpp::traits::input_parameter< unsigned int& >::type ncol(ncolSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_indexes(column, row, ncol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -273,8 +279,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rexmap_consensus_sequence", (DL_FUNC) &_rexmap_consensus_sequence, 1},
     {"_rexmap_hamming", (DL_FUNC) &_rexmap_hamming, 2},
     {"_rexmap_compare_alignment", (DL_FUNC) &_rexmap_compare_alignment, 2},
-    {"_rexmap_get_indexes", (DL_FUNC) &_rexmap_get_indexes, 3},
     {"_rexmap_get_merged_qualities", (DL_FUNC) &_rexmap_get_merged_qualities, 3},
+    {"_rexmap_align_seqs_and_quals", (DL_FUNC) &_rexmap_align_seqs_and_quals, 7},
     {"_rexmap_load_posterior", (DL_FUNC) &_rexmap_load_posterior, 1},
     {"_rexmap_string_to_vector_str", (DL_FUNC) &_rexmap_string_to_vector_str, 1},
     {"_rexmap_string_to_vector_int", (DL_FUNC) &_rexmap_string_to_vector_int, 1},
@@ -286,7 +292,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rexmap_test_merge_by_path_backtrack", (DL_FUNC) &_rexmap_test_merge_by_path_backtrack, 5},
     {"_rexmap_to_int", (DL_FUNC) &_rexmap_to_int, 1},
     {"_rexmap_create_scoring_matrix", (DL_FUNC) &_rexmap_create_scoring_matrix, 2},
-    {"_rexmap_join_to_string", (DL_FUNC) &_rexmap_join_to_string, 1},
+    {"_rexmap_get_indexes", (DL_FUNC) &_rexmap_get_indexes, 3},
     {"_rexmap_C_nwalign", (DL_FUNC) &_rexmap_C_nwalign, 5},
     {NULL, NULL, 0}
 };
