@@ -72,15 +72,15 @@ std::string get_highest_scoring_direction(
 }
 
 std::unordered_map<std::string, int> get_score_deltas(
-    std::unordered_map<std::string, std::string> &sequences,
+    std::unordered_map<std::string, std::string*> &sequences,
     std::vector<std::vector<int>> &scoring_matrix,
     unsigned int row,
     unsigned int column,
     unsigned int ncol,
     int gap_p
 ) {
-  char char1 = sequences["forward"][column];
-  char char2 = sequences["reverse"][row];
+  char char1 = (*sequences.at("forward"))[column];
+  char char2 = (*sequences.at("reverse"))[row];
   return {
     {"left", gap_p},
     {"upper", (column == ncol - 1) ? 0 : gap_p},
@@ -91,15 +91,15 @@ std::unordered_map<std::string, int> get_score_deltas(
 void calc_score_path_other(
     std::vector<int> &score,
     std::vector<int> &path,
-    std::unordered_map<std::string, std::string> &sequences,
+    std::unordered_map<std::string, std::string*> &sequences,
     std::vector<std::vector<int>> &scoring_matrix,
     int gap_p
 ) {
   std::unordered_map<std::string, unsigned int> index;
   std::unordered_map<std::string, int> score_prev, score_delta, score_current;
   std::string highest_scoring_dir;
-  unsigned int ncol = sequences["forward"].size() + 1;
-  unsigned int nrow = sequences["reverse"].size() + 1;
+  unsigned int ncol = sequences.at("forward")->size() + 1;
+  unsigned int nrow = sequences.at("reverse")->size() + 1;
   
   for (unsigned int row = 1; row < nrow; row++) {
     for (unsigned int column = 1; column < ncol; column++) {
@@ -119,12 +119,12 @@ void calc_score_path_other(
 }
 
 std::unordered_map<std::string, std::vector<int>> find_best_scoring_path(
-    std::unordered_map<std::string, std::string> &sequences,
+    std::unordered_map<std::string, std::string*> &sequences,
     std::vector<std::vector<int>> scoring_matrix,
     int gap_p
 ) {
-  unsigned int ncol = sequences["forward"].size() + 1;
-  unsigned int nrow = sequences["reverse"].size() + 1;
+  unsigned int ncol = sequences.at("forward")->size() + 1;
+  unsigned int nrow = sequences.at("reverse")->size() + 1;
   std::vector<int> score(nrow * ncol);
   std::vector<int> path(nrow * ncol);
   calc_score_path_first_row(score, path, ncol);

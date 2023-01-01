@@ -47,7 +47,6 @@ std::vector< std::vector<int> > create_scoring_matrix(int match, int mismatch) {
 // template <typename T>
 void print_flat_vector(const std::vector<int> &v, unsigned int ncol) {
   unsigned int flat_id;
-  unsigned int flat_size = v.size();
   char buffer[5];
   
   for (flat_id = 0; flat_id < v.size(); flat_id++) {

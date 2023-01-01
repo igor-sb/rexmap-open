@@ -82,19 +82,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // align_seqs_and_quals
-std::unordered_map<std::string, std::string> align_seqs_and_quals(std::string& sequence_forward, std::string& sequence_reverse, std::string& quality_forward, std::string& quality_reverse, std::vector<int>& alignment_scores, std::vector<std::vector<unsigned int>>& merged_qualities_match, std::vector<std::vector<unsigned int>>& merged_qualities_mismatch);
-RcppExport SEXP _rexmap_align_seqs_and_quals(SEXP sequence_forwardSEXP, SEXP sequence_reverseSEXP, SEXP quality_forwardSEXP, SEXP quality_reverseSEXP, SEXP alignment_scoresSEXP, SEXP merged_qualities_matchSEXP, SEXP merged_qualities_mismatchSEXP) {
+std::unordered_map<std::string, std::string> align_seqs_and_quals(std::string& sequence_forward, std::string& quality_forward, std::string& sequence_reverse, std::string& quality_reverse, Rcpp::IntegerVector& alignment_scores, std::vector<std::vector<unsigned int>>& merged_qualities_match, std::vector<std::vector<unsigned int>>& merged_qualities_mismatch);
+RcppExport SEXP _rexmap_align_seqs_and_quals(SEXP sequence_forwardSEXP, SEXP quality_forwardSEXP, SEXP sequence_reverseSEXP, SEXP quality_reverseSEXP, SEXP alignment_scoresSEXP, SEXP merged_qualities_matchSEXP, SEXP merged_qualities_mismatchSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string& >::type sequence_forward(sequence_forwardSEXP);
-    Rcpp::traits::input_parameter< std::string& >::type sequence_reverse(sequence_reverseSEXP);
     Rcpp::traits::input_parameter< std::string& >::type quality_forward(quality_forwardSEXP);
+    Rcpp::traits::input_parameter< std::string& >::type sequence_reverse(sequence_reverseSEXP);
     Rcpp::traits::input_parameter< std::string& >::type quality_reverse(quality_reverseSEXP);
-    Rcpp::traits::input_parameter< std::vector<int>& >::type alignment_scores(alignment_scoresSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type alignment_scores(alignment_scoresSEXP);
     Rcpp::traits::input_parameter< std::vector<std::vector<unsigned int>>& >::type merged_qualities_match(merged_qualities_matchSEXP);
     Rcpp::traits::input_parameter< std::vector<std::vector<unsigned int>>& >::type merged_qualities_mismatch(merged_qualities_mismatchSEXP);
-    rcpp_result_gen = Rcpp::wrap(align_seqs_and_quals(sequence_forward, sequence_reverse, quality_forward, quality_reverse, alignment_scores, merged_qualities_match, merged_qualities_mismatch));
+    rcpp_result_gen = Rcpp::wrap(align_seqs_and_quals(sequence_forward, quality_forward, sequence_reverse, quality_reverse, alignment_scores, merged_qualities_match, merged_qualities_mismatch));
     return rcpp_result_gen;
 END_RCPP
 }

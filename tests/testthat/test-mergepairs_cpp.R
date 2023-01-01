@@ -97,8 +97,8 @@ test_that("mergepairs c++: dp score and path for other rows and columns", {
   )
 })
 
-test_that("mergepairs c++: find_best_scoring_path", {
-  sequences <- c("ATGCGA", "CGATT")
+test_that("mergepairs c++: find_best_scoring_path (shorter)", {
+  sequences <- c(forward = "ATGCGAT", reverse = "CGGTTAC")
   scoring_matrix <- create_scoring_matrix(5L, -5L)
   gap_p <- -7L
   score_and_path <- test_find_best_scoring_path(
@@ -120,9 +120,9 @@ test_that("mergepairs c++: find_best_scoring_path", {
   )
 })
 
-test_that("mergepairs c++: find_best_scoring_path", {
-  sequences <- c("ATGCGAT", "CGATTAC")
-  scoring_matrix <- create_scoring_matrix(5L, -5L)
+test_that("mergepairs c++: find_best_scoring_path (longer w/ mismatch)", {
+  sequences <- c("ATGCGAT", "CGGTTAC")
+  scoring_matrix <- create_scoring_matrix(7L, -5L)
   gap_p <- -7L
   score_and_path <- test_find_best_scoring_path(
     sequences, scoring_matrix, gap_p
@@ -130,7 +130,7 @@ test_that("mergepairs c++: find_best_scoring_path", {
   # manually work this out then check output
 })
 
-test_that("mergepairs c++: merge alignment from path", {
+test_that("mergepairs c++: merge alignment from path w/ mismatch", {
   sequences <- c("ATGCGAT", "CGGTTAC")
   qualities <- c("IHFGD93", "HGACB@<")
   #   A  T  G  C  G  A  T
@@ -139,16 +139,14 @@ test_that("mergepairs c++: merge alignment from path", {
   #            39 38 32 34 33 31 27
   #   A  T  G  C  G  G  T  T  A  C
   #   40 39 37 82 78  9 57 33 31 27
-  scoring_matrix <- create_scoring_matrix(5L, -5L)
+  scoring_matrix <- create_scoring_matrix(7L, -5L)
   gap_p <- -7L
-  path <- chr_to_int(
-    c("l", "l", "l", "l", "l", "l", "l", "l", "u", "d", "d", "l", 
-      "d", "l", "d", "u", "u", "u", "u", "d", "u", "d", "l", "u", "u", 
-      "d", "u", "u", "d", "u", "d", "l", "u", "u", "d", "u", "u", "u", 
-      "u", "d", "u", "u", "u", "d", "u", "d", "u", "u", "u", "u", "u", 
-      "d", "l", "u", "u", "u", "u", "u", "u", "u", "d", "u", "u", "u"
-    )
-  )
+  path <- c(108L, 108L, 108L, 108L, 108L, 108L, 108L, 108L, 117L, 100L, 
+            100L, 108L, 100L, 108L, 100L, 117L, 117L, 117L, 100L, 100L, 100L, 
+            100L, 108L, 117L, 117L, 100L, 117L, 100L, 117L, 100L, 100L, 108L, 
+            117L, 117L, 117L, 117L, 117L, 117L, 100L, 100L, 117L, 117L, 117L, 
+            117L, 117L, 100L, 117L, 117L, 117L, 117L, 117L, 100L, 108L, 117L, 
+            117L, 117L, 117L, 117L, 117L, 117L, 100L, 117L, 117L, 117L)
   alignment <- test_merge_by_path_backtrack(
     path,
     sequences,
@@ -156,13 +154,27 @@ test_that("mergepairs c++: merge alignment from path", {
     merged_qualities$match,
     merged_qualities$mismatch
   )
-  true_qualities <- c(40L, 39L, 37L, 82L, 78L, 9L, 57L, 33L, 31L, 27L)
-  expect_identical(unname(alignment["sequence"]),
-                   "ATGCGGTTAC")
-  expect_identical(unname(alignment["quality"]),
-                   quality_integer_to_string(true_qualities))
+  true_qualities <- c(40L, 39L, 37L, 82L, 78L, 9L, 57L, 33L, 31L, 27L) |>
+    quality_integer_to_string()
+  true_alignment <- c(sequence = "ATGCGGTTAC", quality = true_qualities)
+  expect_mapequal(alignment, true_alignment)
 })
 
-test_that("mergepairs c++: merge_seqs_and_quals", {
-  
+test_that("mergepairs c++: align_seqs_and_quals", {
+  # ATGCGAT
+  #    CGGTTAC
+  # IHF
+  sequences <- c(forward = "ATGCGAT", reverse = "CGGTTAC")
+  qualities <- c(forward = "IHFGD93", reverse = "HGACB@<")
+  alignment <- align_seqs_and_quals(
+    sequences["forward"],
+    qualities["forward"],
+    sequences["reverse"],
+    qualities["reverse"],
+    c("match" = 7L, "mismatch" = -5L, "gap_penalty" = 7L),
+    merged_qualities$match,
+    merged_qualities$mismatch
+  )
+  true_alignment <- c(sequence = "ATGCGGTTAC", quality = "IHFso*ZB@<")
+  expect_mapequal(alignment, true_alignment)
 })

@@ -1,19 +1,16 @@
 #include "mergepairs.h"
-#include <unordered_map>
-#include <string>
-// #include <cstdio>
 
 std::unordered_map<std::string, char> get_current_chars(
     unsigned int row,
     unsigned int col,
-    std::unordered_map<std::string, std::string> &sequences,
-    std::unordered_map<std::string, std::string> &qualities
+    std::unordered_map<std::string, std::string*> &sequences,
+    std::unordered_map<std::string, std::string*> &qualities
 ) {
   return {
-    {"sequence_forward", sequences["forward"][col]},
-    {"quality_forward", qualities["forward"][col]},
-    {"sequence_reverse", sequences["reverse"][row]},
-    {"quality_reverse", qualities["reverse"][row]}
+    {"sequence_forward", (*sequences.at("forward"))[col]},
+    {"quality_forward", (*qualities.at("forward"))[col]},
+    {"sequence_reverse", (*sequences.at("reverse"))[row]},
+    {"quality_reverse", (*qualities.at("reverse"))[row]}
   };
 }
 
@@ -59,28 +56,53 @@ std::unordered_map<std::string, char> merge_forward_and_reverse_chars(
   return merged;
 }
 
+bool is_first_row_or_last_col(
+    unsigned int &col,
+    unsigned int &row,
+    unsigned int &ncol
+) {
+  return row == 0 || col == ncol - 1;
+}
+
+bool is_same_sequence_char(
+    std::unordered_map<std::string, char> &unmerged_chars
+) {
+  return unmerged_chars["sequence_forward"] == 
+    unmerged_chars["sequence_reverse"];
+}
+
+bool is_path_start(unsigned int &row, unsigned int &col) {
+  return col == 0 && row == 0;
+}
+
 std::unordered_map<std::string, std::string> merge_by_path_backtrack(
     std::vector<int> &path,
-    std::unordered_map<std::string, std::string> &sequences,
-    std::unordered_map<std::string, std::string> &qualities,
+    std::unordered_map<std::string, std::string*> &sequences,
+    std::unordered_map<std::string, std::string*> &qualities,
     std::vector<std::vector<unsigned int>> &merged_qualities_match,
     std::vector<std::vector<unsigned int>> &merged_qualities_mismatch
 ) {
-  unsigned int ncol = sequences["forward"].size() + 1;
-  unsigned int nrow = sequences["reverse"].size() + 1;
+  unsigned int ncol = sequences.at("forward")->size() + 1;
+  unsigned int nrow = sequences.at("reverse")->size() + 1;
   unsigned int col = ncol - 1;
   unsigned int row = nrow - 1;
   unsigned int flat_id;
+  unsigned int overlap_length = 0, overlap_matches = 0;
   std::unordered_map<std::string, std::string> aligned;
   std::unordered_map<std::string, char> unmerged_chars, merged_chars;
   std::string merged_sequence, merged_quality;
   
-  while (col > 0 || row > 0) {
+  while (!is_path_start(row, col)) {
     flat_id = flat_index(col, row, ncol);
+    if (!is_first_row_or_last_col(col, row, ncol)) overlap_length++;
     switch(path[flat_id]) {
       case int('d'):
         col--; row--;
         unmerged_chars = get_current_chars(row, col, sequences, qualities);
+        if (!is_first_row_or_last_col(col, row, ncol) && 
+            is_same_sequence_char(unmerged_chars)) {
+          overlap_matches++;
+        }
         merged_chars = merge_forward_and_reverse_chars(
           unmerged_chars, merged_qualities_match, merged_qualities_mismatch
         );
@@ -89,13 +111,13 @@ std::unordered_map<std::string, std::string> merge_by_path_backtrack(
         break;
       case int('l'):
         col--;
-        aligned["sequence"].push_back(sequences["forward"][col]);
-        aligned["quality"].push_back(qualities["forward"][col]);
+        aligned["sequence"].push_back((*sequences.at("forward"))[col]);
+        aligned["quality"].push_back((*qualities.at("forward"))[col]);
         break;
       case int('u'):
         row--;
-        aligned["sequence"].push_back(sequences["reverse"][row]);
-        aligned["quality"].push_back(qualities["reverse"][row]);
+        aligned["sequence"].push_back((*sequences.at("reverse"))[row]);
+        aligned["quality"].push_back((*qualities.at("reverse"))[row]);
         break;
       default:
         Rcpp::stop("Invalid backtracking value.");
@@ -109,28 +131,29 @@ std::unordered_map<std::string, std::string> merge_by_path_backtrack(
 // [[Rcpp::export]]
 std::unordered_map<std::string, std::string> align_seqs_and_quals(
     std::string &sequence_forward,
-    std::string &sequence_reverse,
     std::string &quality_forward,
+    std::string &sequence_reverse,
     std::string &quality_reverse,
-    std::vector<int> &alignment_scores,
+    Rcpp::IntegerVector &alignment_scores,
     std::vector<std::vector<unsigned int>> &merged_qualities_match,
     std::vector<std::vector<unsigned int>> &merged_qualities_mismatch
 ) {
   std::unordered_map<std::string, std::string> alignment;
   std::vector<std::vector<int>> scoring_matrix;
   std::unordered_map<std::string, std::vector<int>> score_and_path;
-  std::unordered_map<std::string, std::string> sequences_umap = {
-    {"forward", sequence_forward}, {"reverse", sequence_reverse}
+
+  // Data type conversion from Rcpp to C++ STL
+  std::unordered_map<std::string, std::string*> sequences_umap = {
+    {"forward", &sequence_forward}, {"reverse", &sequence_reverse}
   };
-  std::unordered_map<std::string, std::string> qualities_umap = {
-    {"forward", quality_forward}, {"reverse", quality_reverse}
+  std::unordered_map<std::string, std::string*> qualities_umap = {
+    {"forward", &quality_forward}, {"reverse", &quality_reverse}
   };
   std::unordered_map<std::string, int> alignment_scores_umap = {
-    {"match", alignment_scores[0]},
-    {"mismatch", alignment_scores[1]},
-    {"gap_penalty", alignment_scores[2]}
-  };;
-  
+    {"match", alignment_scores["match"]},
+    {"mismatch", alignment_scores["mismatch"]},
+    {"gap_penalty", alignment_scores["gap_penalty"]}
+  };
   scoring_matrix = create_scoring_matrix(
     alignment_scores_umap["match"], alignment_scores_umap["mismatch"]
   );

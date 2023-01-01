@@ -20,7 +20,7 @@ std::unordered_map<std::string, int> sum_values(
 );
 void print_flat_vector(const std::vector<int> &v, unsigned int ncol);
 std::unordered_map<std::string, std::vector<int>> find_best_scoring_path(
-    std::unordered_map<std::string, std::string> &sequences,
+    std::unordered_map<std::string, std::string*> &sequences,
     std::vector<std::vector<int>> scoring_matrix,
     int gap_p
 );
