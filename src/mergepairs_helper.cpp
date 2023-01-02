@@ -56,7 +56,7 @@ std::unordered_map<std::string, std::vector<int>> test_find_best_scoring_path(
 }
 
 // [[Rcpp::export]]
-std::unordered_map<std::string, std::string> test_merge_by_path_backtrack(
+MergedAlignment test_merge_by_path_backtrack(
     std::vector<int> &path,
     std::vector<std::string> &sequences,
     std::vector<std::string> &qualities,

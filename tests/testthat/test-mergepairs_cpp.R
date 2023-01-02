@@ -120,7 +120,7 @@ test_that("mergepairs c++: find_best_scoring_path (shorter)", {
   )
 })
 
-test_that("mergepairs c++: find_best_scoring_path (longer w/ mismatch)", {
+test_that("mergepairs c++: find_best_scoring_path w/ mismatch, no indel", {
   sequences <- c("ATGCGAT", "CGGTTAC")
   scoring_matrix <- create_scoring_matrix(7L, -5L)
   gap_p <- -7L
@@ -130,15 +130,15 @@ test_that("mergepairs c++: find_best_scoring_path (longer w/ mismatch)", {
   # manually work this out then check output
 })
 
-test_that("mergepairs c++: merge alignment from path w/ mismatch", {
-  sequences <- c("ATGCGAT", "CGGTTAC")
-  qualities <- c("IHFGD93", "HGACB@<")
+test_that("mergepairs c++: merge_by_path_backtrack w/ mismatch, no indel", {
   #   A  T  G  C  G  A  T
   #   40 39 37 38 35 24 18 
   #            C  G  G  T  T  A  C
   #            39 38 32 34 33 31 27
   #   A  T  G  C  G  G  T  T  A  C
-  #   40 39 37 82 78  9 57 33 31 27
+  #   40 39 37 82 78  9 57 33 31 27  
+  sequences <- c("ATGCGAT", "CGGTTAC")
+  qualities <- c("IHFGD93", "HGACB@<")
   scoring_matrix <- create_scoring_matrix(7L, -5L)
   gap_p <- -7L
   path <- c(108L, 108L, 108L, 108L, 108L, 108L, 108L, 108L, 117L, 100L, 
@@ -156,9 +156,33 @@ test_that("mergepairs c++: merge alignment from path w/ mismatch", {
   )
   true_qualities <- c(40L, 39L, 37L, 82L, 78L, 9L, 57L, 33L, 31L, 27L) |>
     quality_integer_to_string()
-  true_alignment <- c(sequence = "ATGCGGTTAC", quality = true_qualities)
+  true_alignment <- list(
+    sequence = "ATGCGGTTAC",
+    quality = true_qualities,
+    overlap_length = 4,
+    overlap_matches = 3
+  )
   expect_mapequal(alignment, true_alignment)
 })
+
+test_that("mergepairs c++: merge_by_path_backtrack w/ mismatch, w/ indel", {
+  #   A  T  G  C  G  A  T  T  A
+  #   40 39 37 38 35 24 18 19 12
+  #            C  G  G  T  -  A  C  G  T
+  #            14 17 20 34    31 27 0  41 
+  #   A  T  G  C  G  G  T  T  A  C  G  T
+  #   40 39 37 82 78  9 57 19 31 27 0  41
+})
+
+# Add test cases for alignments:
+#  ATGCATGCAG
+#       TGCAG
+
+# ATGCATGCAG
+# ATGCA
+# This should never occur
+
+# Add test case with indels within the overlap
 
 test_that("mergepairs c++: align_seqs_and_quals", {
   # ATGCGAT

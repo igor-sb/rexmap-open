@@ -1,6 +1,5 @@
 #include <Rcpp.h>
-#include <fstream>
-using namespace Rcpp;
+#include "rexmap.h"
 
 void calc_score_path_other(
     std::vector<int> &score,
@@ -30,7 +29,7 @@ std::unordered_map<std::string, std::vector<int>> find_best_scoring_path(
     int gap_p
 );
 
-std::unordered_map<std::string, std::string> merge_by_path_backtrack(
+MergedAlignment merge_by_path_backtrack(
     std::vector<int> &path,
     std::unordered_map<std::string, std::string*> &sequences,
     std::unordered_map<std::string, std::string*> &qualities,

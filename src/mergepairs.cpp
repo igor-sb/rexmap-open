@@ -1,5 +1,7 @@
 #include <Rcpp.h>
 #include "rexmap.h"
+#include <fstream>
+using namespace Rcpp;
 
 // Precomputer posterior q scores for matching and mismatching bases
 std::vector< std::vector<int> > post_q_match;

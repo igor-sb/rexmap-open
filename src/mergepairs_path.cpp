@@ -1,4 +1,5 @@
-#include "mergepairs.h"
+#include <Rcpp.h>
+#include "rexmap.h"
 
 void calc_score_path_first_column(
     std::vector<int> &score,

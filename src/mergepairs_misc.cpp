@@ -1,4 +1,5 @@
-#include "mergepairs.h"
+#include <Rcpp.h>
+#include "rexmap.h"
 #include <cstdio>
 // [[Rcpp::plugins(cpp11)]]
 
