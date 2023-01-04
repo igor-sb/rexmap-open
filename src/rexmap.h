@@ -1,5 +1,6 @@
 #include <string>
 #include <unordered_map>
+// [[Rcpp::plugins(cpp11)]]
 
 typedef struct {
   std::string sequence;
@@ -7,6 +8,13 @@ typedef struct {
   unsigned int overlap_length;
   unsigned int overlap_matches;
 } MergedAlignment;
+
+// Aliases for common types
+template<typename T>
+using Hashmap = std::unordered_map<std::string, T>;
+
+template<typename T>
+using Vector2d = std::vector< std::vector<T>>;
 
 // Constants
 #define PHRED_OFFSET 33

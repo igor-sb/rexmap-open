@@ -11,7 +11,7 @@ struct Pair {
   SequenceChar reverse;
 };
 
-std::unordered_map<std::string, char> get_current_chars(
+Hashmap<char> get_current_chars(
     unsigned int row,
     unsigned int col,
     std::unordered_map<std::string, std::string*> &sequences,

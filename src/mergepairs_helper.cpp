@@ -1,8 +1,7 @@
 #include "mergepairs_helper.h"
 
 // [[Rcpp::export]]
-std::unordered_map<std::string, std::vector<int>>
-test_calc_score_path_first_row(
+Hashmap<std::vector<int>> test_calc_score_path_first_row(
   std::vector<int> &score,
   std::vector<int> &path,
   int ncol
@@ -12,8 +11,7 @@ test_calc_score_path_first_row(
 }
 
 // [[Rcpp::export]]
-std::unordered_map<std::string, std::vector<int>>
-  test_calc_score_path_first_column(
+Hashmap<std::vector<int>> test_calc_score_path_first_column(
     std::vector<int> &score,
     std::vector<int> &path,
     int nrow,
