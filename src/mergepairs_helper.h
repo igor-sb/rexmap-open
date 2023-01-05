@@ -4,8 +4,8 @@
 void calc_score_path_other(
     std::vector<int> &score,
     std::vector<int> &path,
-    std::unordered_map<std::string, std::string*> &sequences,
-    std::vector<std::vector<int>> &scoring_matrix,
+    PairedString &sequences,
+    Vector2d<int> &scoring_matrix,
     int gap_p
 );
 
@@ -23,22 +23,22 @@ void calc_score_path_first_column(
     int gap_p
 );
 
-std::unordered_map<std::string, std::vector<int>> find_best_scoring_path(
-    std::unordered_map<std::string, std::string*> &sequences,
-    std::vector<std::vector<int>> scoring_matrix,
+Hashmap<std::vector<int>> find_best_scoring_path(
+    PairedString &sequences,
+    Vector2d<int> scoring_matrix,
     int gap_p
 );
 
 MergedAlignment merge_by_path_backtrack(
     std::vector<int> &path,
-    std::unordered_map<std::string, std::string*> &sequences,
-    std::unordered_map<std::string, std::string*> &qualities,
-    std::vector<std::vector<unsigned int>> &merged_qualities_match,
-    std::vector<std::vector<unsigned int>> &merged_qualities_mismatch
+    PairedString &sequences,
+    PairedString &qualities,
+    Vector2d<unsigned int> &merged_qualities_match,
+    Vector2d<unsigned int> &merged_qualities_mismatch
 );
 
-std::unordered_map<std::string, char> merge_forward_and_reverse_chars(
-    std::unordered_map<std::string, char> chars,
-    std::vector<std::vector<unsigned int>> merged_qualities_match,
-    std::vector<std::vector<unsigned int>> merged_qualities_mismatch
+Hashmap<char> merge_forward_and_reverse_chars(
+    Hashmap<char> chars,
+    Vector2d<unsigned int> merged_qualities_match,
+    Vector2d<unsigned int> merged_qualities_mismatch
 );

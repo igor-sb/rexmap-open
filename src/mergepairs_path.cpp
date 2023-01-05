@@ -30,7 +30,7 @@ void calc_score_path_first_row(
 }
 
 // [[Rcpp::export]]
-std::unordered_map<std::string, unsigned int> get_indexes(
+Hashmap<unsigned int> get_indexes(
     unsigned int &column,
     unsigned int &row,
     unsigned int &ncol
@@ -43,11 +43,11 @@ std::unordered_map<std::string, unsigned int> get_indexes(
 };
 }
 
-std::unordered_map<std::string, int> get_left_upper_diag_scores(
+Hashmap<int> get_left_upper_diag_scores(
     std::vector<int> &score,
-    std::unordered_map<std::string, unsigned int> index
+    Hashmap<unsigned int> index
 ) {
-  std::unordered_map<std::string, int> score_prev;
+  Hashmap<int> score_prev;
   std::vector<std::string> directions = {"left", "upper", "diag"};
   for (const std::string &direction : directions) {
     score_prev[direction] = score[index[direction]];
@@ -58,7 +58,7 @@ std::unordered_map<std::string, int> get_left_upper_diag_scores(
 // Find direction of the highest scoring in backtracking the alignment graph
 //  - brake ties by preferring upper and left over diag (random choice)
 std::string get_highest_scoring_direction(
-    std::unordered_map<std::string, int> score_from
+    Hashmap<int> score_from
 ) {
   std::string direction;
   if (score_from["upper"] >= score_from["diag"] &&
@@ -72,16 +72,16 @@ std::string get_highest_scoring_direction(
   return direction;
 }
 
-std::unordered_map<std::string, int> get_score_deltas(
-    std::unordered_map<std::string, std::string*> &sequences,
-    std::vector<std::vector<int>> &scoring_matrix,
+Hashmap<int> get_score_deltas(
+    PairedString &sequences,
+    Vector2d<int> &scoring_matrix,
     unsigned int row,
     unsigned int column,
     unsigned int ncol,
     int gap_p
 ) {
-  char char1 = (*sequences.at("forward"))[column];
-  char char2 = (*sequences.at("reverse"))[row];
+  char char1 = (sequences.forward)[column - 1];
+  char char2 = (sequences.reverse)[row - 1];
   return {
     {"left", gap_p},
     {"upper", (column == ncol - 1) ? 0 : gap_p},
@@ -92,15 +92,15 @@ std::unordered_map<std::string, int> get_score_deltas(
 void calc_score_path_other(
     std::vector<int> &score,
     std::vector<int> &path,
-    std::unordered_map<std::string, std::string*> &sequences,
-    std::vector<std::vector<int>> &scoring_matrix,
-    int gap_p
+    PairedString &sequences,
+    Vector2d<int> &scoring_matrix,
+    int &gap_p
 ) {
-  std::unordered_map<std::string, unsigned int> index;
-  std::unordered_map<std::string, int> score_prev, score_delta, score_current;
+  Hashmap<unsigned int> index;
+  Hashmap<int> score_prev, score_delta, score_current;
   std::string highest_scoring_dir;
-  unsigned int ncol = sequences.at("forward")->size() + 1;
-  unsigned int nrow = sequences.at("reverse")->size() + 1;
+  unsigned int ncol = sequences.forward.size() + 1;
+  unsigned int nrow = sequences.reverse.size() + 1;
   
   for (unsigned int row = 1; row < nrow; row++) {
     for (unsigned int column = 1; column < ncol; column++) {
@@ -111,7 +111,7 @@ void calc_score_path_other(
       );
       score_current = sum_values(score_prev, score_delta);
       highest_scoring_dir = get_highest_scoring_direction(score_current);
-      
+
       score[index["current"]] = score_current[highest_scoring_dir];
       path[index["current"]] = int(highest_scoring_dir.front());
     }
@@ -119,13 +119,13 @@ void calc_score_path_other(
   return;
 }
 
-std::unordered_map<std::string, std::vector<int>> find_best_scoring_path(
-    std::unordered_map<std::string, std::string*> &sequences,
-    std::vector<std::vector<int>> scoring_matrix,
+Hashmap<std::vector<int>> find_best_scoring_path(
+    PairedString &sequences,
+    Vector2d<int> scoring_matrix,
     int gap_p
 ) {
-  unsigned int ncol = sequences.at("forward")->size() + 1;
-  unsigned int nrow = sequences.at("reverse")->size() + 1;
+  unsigned int ncol = sequences.forward.size() + 1;
+  unsigned int nrow = sequences.reverse.size() + 1;
   std::vector<int> score(nrow * ncol);
   std::vector<int> path(nrow * ncol);
   calc_score_path_first_row(score, path, ncol);

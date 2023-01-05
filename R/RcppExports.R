@@ -25,8 +25,8 @@ get_merged_qualities <- function(q1char, q2char, merged_qualities) {
     .Call('_rexmap_get_merged_qualities', PACKAGE = 'rexmap', q1char, q2char, merged_qualities)
 }
 
-align_seqs_and_quals <- function(sequence_forward, quality_forward, sequence_reverse, quality_reverse, alignment_scores, merged_qualities_match, merged_qualities_mismatch) {
-    .Call('_rexmap_align_seqs_and_quals', PACKAGE = 'rexmap', sequence_forward, quality_forward, sequence_reverse, quality_reverse, alignment_scores, merged_qualities_match, merged_qualities_mismatch)
+align_seqs_and_quals <- function(sequences, qualities, alignment_scores, merged_qualities_match, merged_qualities_mismatch) {
+    .Call('_rexmap_align_seqs_and_quals', PACKAGE = 'rexmap', sequences, qualities, alignment_scores, merged_qualities_match, merged_qualities_mismatch)
 }
 
 load_posterior <- function(filename) {

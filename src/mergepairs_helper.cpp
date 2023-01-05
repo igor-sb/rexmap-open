@@ -17,58 +17,48 @@ Hashmap<std::vector<int>> test_calc_score_path_first_column(
     int nrow,
     int ncol,
     int gap_p
-  ) {
+) {
     calc_score_path_first_column(score, path, nrow, ncol, gap_p);
     return {{"score", score}, {"path", path}};
-  }
-
-std::unordered_map<std::string, std::string*> vector_to_unordered_map(
-  std::vector<std::string> &sequences
-) {
-  return {{"forward", &sequences[0]}, {"reverse", &sequences[1]}};
 }
 
 // [[Rcpp::export]]
-std::unordered_map<std::string, std::vector<int>> test_calc_score_path_other(
+Hashmap<std::vector<int>> test_calc_score_path_other(
     std::vector<int> &score,
     std::vector<int> &path,
-    std::vector<std::string> &sequences,
-    std::vector<std::vector<int>> &align_scores,
+    Rcpp::List &sequences,
+    Vector2d<int> &align_scores,
     int gap_p
 ) {
-  std::unordered_map<std::string, std::string*> sequences_umap = 
-    vector_to_unordered_map(sequences);
-  calc_score_path_other(score, path, sequences_umap, align_scores, gap_p);
+  PairedString sequences_pair(sequences["forward"], sequences["reverse"]);
+  calc_score_path_other(score, path, sequences_pair, align_scores, gap_p);
   return {{"score", score}, {"path", path}};  
 }
 
 // [[Rcpp::export]]
-std::unordered_map<std::string, std::vector<int>> test_find_best_scoring_path(
-    std::vector<std::string> &sequences,
-    std::vector<std::vector<int>> scoring_matrix,
+Hashmap<std::vector<int>> test_find_best_scoring_path(
+    Rcpp::List &sequences,
+    Vector2d<int> scoring_matrix,
     int gap_p
 ) {
-  std::unordered_map<std::string, std::string*> sequences_umap = 
-    vector_to_unordered_map(sequences);
-  return find_best_scoring_path(sequences_umap, scoring_matrix, gap_p);  
+  PairedString sequences_pair(sequences["forward"], sequences["reverse"]);
+  return find_best_scoring_path(sequences_pair, scoring_matrix, gap_p);  
 }
 
 // [[Rcpp::export]]
 MergedAlignment test_merge_by_path_backtrack(
     std::vector<int> &path,
-    std::vector<std::string> &sequences,
-    std::vector<std::string> &qualities,
-    std::vector<std::vector<unsigned int>> &merged_qualities_match,
-    std::vector<std::vector<unsigned int>> &merged_qualities_mismatch
+    Rcpp::List &sequences,
+    Rcpp::List &qualities,
+    Vector2d<unsigned int> &merged_qualities_match,
+    Vector2d<unsigned int> &merged_qualities_mismatch
 ) {
-  std::unordered_map<std::string, std::string*> sequences_umap = 
-    vector_to_unordered_map(sequences);
-  std::unordered_map<std::string, std::string*> qualities_umap = 
-    vector_to_unordered_map(qualities);
+  PairedString sequences_pair(sequences["forward"], sequences["reverse"]);
+  PairedString qualities_pair(qualities["forward"], qualities["reverse"]);
   return merge_by_path_backtrack(
     path,
-    sequences_umap,
-    qualities_umap,
+    sequences_pair,
+    qualities_pair,
     merged_qualities_match,
     merged_qualities_mismatch
   );

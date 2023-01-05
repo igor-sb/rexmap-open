@@ -34,11 +34,11 @@ merge_pairs <- Vectorize(function(
     forward_file,
     reverse_file,
     merged_file,
-    reverse_complement = list("forward" = FALSE, "reverse" = TRUE),
+    transform_reverse_complement = list("forward" = FALSE, "reverse" = TRUE),
     min_acceptance_criteria = list(similarity = 0.75, overlap = 50),
-    alignment_scores = list(match = 5L, mismatch = -5L, gap_penalty = -7L),
-    logger = rexmap_option("logger"),
-    n_threads = rexmap_option("ncpu")
+    alignment_scores = list(match = 7L, mismatch = -5L, gap_penalty = -7L),
+    number_threads = rexmap_option("ncpu"),
+    logger = rexmap_option("logger")
     # rc_reverse = TRUE,
     # ncpu = rexmap_option("ncpu"),
     # verbose = FALSE,
@@ -56,14 +56,14 @@ merge_pairs <- Vectorize(function(
          "reverse_stream" = ShortRead::FastqStreamer(reverse_file)),
     {
       repeat {
-        chunks <- get_chunks_from_streams(
+        seqs_quals_ids <- get_sequences_qualities_ids(
           list("forward" = forward_stream, "reverse" = reverse_stream),
           reverse_complement
         )
-        if (length(chunks$forward) == 0 || length(chunks$reverse) == 0) break
-        
-        merged_sequences <- chunks |>
-          merge_sequences(alignment_scores, n_threads) |>
+        if (length(seqs_quals_ids$ids) == 0) break
+
+        merged_sequences <- seqs_quals_ids |>
+          merge_sequences(alignment_scores, number_threads) |>
           filter_merged_sequences(min_acceptance_criteria)
         
         write_chunks_to_merged_file(merged_file, merged_sequences)
@@ -108,17 +108,13 @@ filter_merged_sequences <- function(merged_sequences, min_acceptance_criteria) {
   merged_sequences[is_merging_accepted]
 }
 
-merge_chunks <- function(chunks, alignment_scores) {
+merge_sequences <- function(seqs_quals_ids, alignment_scores, number_threads) {
   qual_files <- get_merged_qualities_files()
   parallel::mcmapply(
-    C_mergepairs,
-    chunk_data$forward$sequences,
-    chunk_data$reverse$sequences,
-    chunk_data$forward$qualities,
-    chunk_data$reverse$qualities,
-    match = alignment_scores$match,
-    mismatch = alignment_scores$mismatch,
-    gap_p = alignment_scores$gap_penalty,
+    align_seqs_and_quals,
+    seqs_quals_ids$sequences,
+    seqs_quals_ids$qualities,
+    alignment_scores,
     posterior_match_file = qual_files$matches,
     posterior_mismatch_file = qual_files$mismatches,
     mc.cores = number_threads
@@ -154,16 +150,44 @@ check_merge_pairs_args <- function(
 }
 
 # Reads chunks from forward and reverse streams in parallel
-get_chunks_from_streams <- function(stream_list, revcomp_transform_list) {
+get_fastq_entries_from_streams <- function(
+    stream_list,
+    transform_revcomp_list
+) {
   mapply(
-    function(stream, revcomp_transform) {
-      chunk <- ShortRead::yield(stream)
-      if (revcomp_transform) chunk <- ShortRead::reverseComplement(chunk)
+    function(stream, transform_reverse_complement) {
+      sequence_data <- ShortRead::yield(stream)
+      if (transform_reverse_complement) {
+        sequence_data <- ShortRead::reverseComplement(sequence_data)
+      }
+      sequence_data
     },
     stream_list,
-    revcomp_transform_list,
+    transform_revcomp_list,
     SIMPLIFY = FALSE
   )
+}
+
+get_sequences_qualities_ids <- function(stream_list, transform_revcomp_list) {
+  paired_fastq_entries <- get_fastq_entries_from_streams(
+    stream_list, transform_revcomp_list
+  )
+  if (length(paired_fastq_entries$forward) == 0 ||
+      length(paired_fastq_entries$reverse) == 0) {
+    return(list(sequences = NULL, qualities = NULL, ids = NULL))
+  }
+  lapply(
+    list("sequences", "qualities", "ids"),
+    function(type) get_data_from_fastq_entries(paired_fastq_entries, type)
+  )
+}
+
+get_data_from_fastq_entries <- function(paired_fastq_entries, data_type) {
+  stopifnot(
+    "Invalid data type." = data_type %in% c("sequences", "qualities", "ids")
+  )
+  function_name <- paste0("get_", data_type, "_from_chunk")
+  lapply(paired_fastq_entries, get(function_name)) |> data.table::transpose()
 }
 
 get_data_from_chunks <- function(chunk_list) {
@@ -179,17 +203,17 @@ get_data_from_chunks <- function(chunk_list) {
   )
 }
 
-get_ids_from_chunk <- function(chunk) {
-  raw_ids <- ShortRead::id(chunk) |> as.character()
+get_ids_from_sequence_data <- function(sequence_data) {
+  raw_ids <- ShortRead::id(sequence_data) |> as.character()
   gsub("^([^ ]+) .*", "\\1", raw_ids)
 }
 
-get_sequences_from_chunk <- function(chunk) {
-  ShortRead::sread(chunk) |> as.character()
+get_sequences_from_sequence_data <- function(sequence_data) {
+  ShortRead::sread(sequence_data) |> as.character()
 }
 
-get_qualities_from_chunk <- function(chunk) {
-  Biostrings::quality(chunk) |> Biostrings::quality() |> as.character()
+get_qualities_from_sequence_data <- function(sequence_data) {
+  Biostrings::quality(sequence_data) |> Biostrings::quality() |> as.character()
 }
 
 #' Convert mergestats table to a normal data.table

@@ -35,8 +35,8 @@ int to_int(char &nt) {
 }
 
 // [[Rcpp::export]]
-std::vector< std::vector<int> > create_scoring_matrix(int match, int mismatch) {
-  std::vector< std::vector<int> > score_matrix(5, std::vector<int>(5));
+Vector2d<int> create_scoring_matrix(int match, int mismatch) {
+  Vector2d<int> score_matrix(5, std::vector<int>(5));
   for (int i = 0; i < 5; i++) {
     for (int j = 0; j < 5; j++) {
       score_matrix[i][j] = (i == j && i < 4) ? match : mismatch; 
@@ -60,11 +60,11 @@ void print_flat_vector(const std::vector<int> &v, unsigned int ncol) {
 }
 
 // Sum matching integer values from two hashmaps
-std::unordered_map<std::string, int> sum_values(
-    std::unordered_map<std::string, int> map1,
-    std::unordered_map<std::string, int> map2
+Hashmap<int> sum_values(
+    Hashmap<int> map1,
+    Hashmap<int> map2
 ) {
-  std::unordered_map<std::string, int> sum;
+  Hashmap<int> sum;
   
   for (const auto &key_value : map1) {
     sum[key_value.first] = key_value.second;
