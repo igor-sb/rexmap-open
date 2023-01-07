@@ -243,16 +243,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// get_indexes
-Hashmap<unsigned int> get_indexes(unsigned int& column, unsigned int& row, unsigned int& ncol);
-RcppExport SEXP _rexmap_get_indexes(SEXP columnSEXP, SEXP rowSEXP, SEXP ncolSEXP) {
+// create_flat_indexes
+Index create_flat_indexes(unsigned int& column, unsigned int& row, unsigned int& ncol);
+RcppExport SEXP _rexmap_create_flat_indexes(SEXP columnSEXP, SEXP rowSEXP, SEXP ncolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< unsigned int& >::type column(columnSEXP);
     Rcpp::traits::input_parameter< unsigned int& >::type row(rowSEXP);
     Rcpp::traits::input_parameter< unsigned int& >::type ncol(ncolSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_indexes(column, row, ncol));
+    rcpp_result_gen = Rcpp::wrap(create_flat_indexes(column, row, ncol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -291,7 +291,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rexmap_test_merge_by_path_backtrack", (DL_FUNC) &_rexmap_test_merge_by_path_backtrack, 5},
     {"_rexmap_to_int", (DL_FUNC) &_rexmap_to_int, 1},
     {"_rexmap_create_scoring_matrix", (DL_FUNC) &_rexmap_create_scoring_matrix, 2},
-    {"_rexmap_get_indexes", (DL_FUNC) &_rexmap_get_indexes, 3},
+    {"_rexmap_create_flat_indexes", (DL_FUNC) &_rexmap_create_flat_indexes, 3},
     {"_rexmap_C_nwalign", (DL_FUNC) &_rexmap_C_nwalign, 5},
     {NULL, NULL, 0}
 };

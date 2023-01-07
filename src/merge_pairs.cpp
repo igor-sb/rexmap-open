@@ -1,78 +1,122 @@
 #include <Rcpp.h>
-#include "rexmap.h"
+#include "PairedString.h"
 
-struct SequenceChar {
-  char sequence;
-  char quality;
+class SeqAndQualChar {
+public:
+    char sequence;
+    char quality;
+    SeqAndQualChar() {}
+    SeqAndQualChar(char sequence, char quality) :
+      sequence(sequence), quality(quality) {}
+    SeqAndQualChar set(char sequence, char quality) {
+      this->sequence = sequence;
+      this->quality = quality;
+      return *this;
+    }
 };
 
-struct PairedChar {
-  SequenceChar forward;
-  SequenceChar reverse;
+class PairedSeqAndQualChar {
+public:
+  SeqAndQualChar forward;
+  SeqAndQualChar reverse;
+  PairedSeqAndQualChar(
+    char sequence_forward_char,
+    char sequence_reverse_char,
+    char quality_forward_char,
+    char quality_reverse_char
+  ) : forward(sequence_forward_char, quality_forward_char),
+      reverse(sequence_reverse_char, quality_reverse_char) {}
 };
 
-Hashmap<char> get_current_chars(
+PairedSeqAndQualChar locate_sequence_and_quality_char(
     unsigned int row,
-    unsigned int col,
+    unsigned int column,
     PairedString &sequences,
     PairedString &qualities
 ) {
-  return {
-    {"sequence_forward", (sequences.forward)[col]},
-    {"quality_forward", (qualities.forward)[col]},
-    {"sequence_reverse", (sequences.reverse)[row]},
-    {"quality_reverse", (qualities.reverse)[row]}
-  };
+  return PairedSeqAndQualChar(
+    sequences.forward[column],
+    sequences.reverse[row],
+    qualities.forward[column],
+    qualities.reverse[row]
+  );
 }
+
+class QualityMergingMap {
+private:
+  std::vector<std::vector<unsigned int>> &match;
+  std::vector<std::vector<unsigned int>> &mismatch;
+public:
+  QualityMergingMap(
+    std::vector<std::vector<unsigned int>> &match,
+    std::vector<std::vector<unsigned int>> &mismatch
+  ) : match(match), mismatch(mismatch) {}
+  
+  std::vector<std::vector<unsigned int>> &get_map(bool is_match) {
+    return is_match ? match : mismatch;
+  }
+  
+  int get_merged_quality
+  
+  char merge_quality_chars(
+    char &quality_forward_char,
+    char &quality_reverse_char,
+    bool is_match,
+    int PHRED_OFFSET = 33
+  ) {
+    unsigned int quality_forward_int = int(quality_forward_char) - PHRED_OFFSET;
+    unsigned int quality_reverse_int = int(quality_reverse_char) - PHRED_OFFSET;
+    unsigned int quality_merged_int;
+    if (quality_reverse_int > quality_forward_int) {
+      std::swap(quality_forward_int, quality_reverse_int);
+    }
+    quality_merged_int = quality_merging_map
+      [quality_forward_int - 1][quality_reverse_int - 1] + PHRED_OFFSET;
+    return char(quality_merged_int);
+    
+  }
+};
 
 // [[Rcpp::export]]
-char get_merged_qualities(
-    char &q1char,
-    char &q2char,
-    Vector2d<unsigned int> &merged_qualities
+char merge_aligned_quality_char(
+    char &quality_forward_char,
+    char &quality_reverse_char,
+    std::vector<std::vector<unsigned int>> &quality_merging_map,
+    int PHRED_OFFSET = 33
 ) {
-  unsigned int q1 = int(q1char) - PHRED_OFFSET;
-  unsigned int q2 = int(q2char) - PHRED_OFFSET;
-  unsigned int q_merged;
-  if (q2 > q1) std::swap(q1, q2);
-  q_merged = merged_qualities[q1 - 1][q2 - 1] + PHRED_OFFSET;
-  return char(q_merged);
-}
-
-Hashmap<char> merge_forward_and_reverse_chars(
-    Hashmap<char> chars,
-    Vector2d<unsigned int> merged_qualities_match,
-    Vector2d<unsigned int> merged_qualities_mismatch
-) {
-  Hashmap<char> merged;
-  if (chars["sequence_forward"] == chars["sequence_reverse"]) {
-    merged["sequence"] = chars["sequence_forward"];
-    merged["quality"] = get_merged_qualities(
-      chars["quality_forward"],
-      chars["quality_reverse"],
-      merged_qualities_match
-    );
-  } else {
-    if (chars["quality_forward"] < chars["quality_reverse"]) {
-      merged["sequence"] = chars["sequence_reverse"];
-    } else {
-      merged["sequence"] = chars["sequence_forward"];
-    }
-    merged["quality"] = get_merged_qualities(
-      chars["quality_forward"],
-      chars["quality_reverse"],
-      merged_qualities_mismatch
-    );
+  unsigned int quality_forward_int = int(quality_forward_char) - PHRED_OFFSET;
+  unsigned int quality_reverse_int = int(quality_reverse_char) - PHRED_OFFSET;
+  unsigned int quality_merged_int;
+  if (quality_reverse_int > quality_forward_int) {
+    std::swap(quality_forward_int, quality_reverse_int);
   }
-  return merged;
+  quality_merged_int = quality_merging_map
+    [quality_forward_int - 1][quality_reverse_int - 1] + PHRED_OFFSET;
+  return char(quality_merged_int);
 }
 
-bool is_first_row_or_last_col(
-    unsigned int &col,
-    unsigned int &row,
-    unsigned int &ncol
+SeqAndQualChar merge_forward_and_reverse_chars(
+    PairedSeqAndQualChar aligned_char,
+    std::vector<std::vector<unsigned int>> &matching_quality_merging_map,
+    std::vector<std::vector<unsigned int>> &mismatching_quality_merging_map
 ) {
-  return row == 0 || col == ncol - 1;
+  char merged_quality_char;
+  bool is_match;
+  SeqAndQualChar merged_char;
+  
+  if (aligned_char.forward.quality >= aligned_char.reverse.quality) {
+    merged_char.sequence = aligned_char.forward.sequence;
+  } else {
+    merged_char.sequence = aligned_char.reverse.sequence;
+  }
+  
+  is_seq_match = aligned_char.forward.sequence == aligned_char.reverse.sequence;
+  merged_char.quality = merge_aligned_quality_char(
+    aligned_char.forward.quality,
+    aligned_char.reverse.quality,
+    matching_quality_merging_map
+  );
+  return merged_char;
 }
 
 bool is_same_sequence_char(
@@ -97,17 +141,18 @@ MergedAlignment merge_by_path_backtrack(
   unsigned int nrow = sequences.reverse.size() + 1;
   unsigned int flat_id, col = ncol - 1, row = nrow - 1;
   MergedAlignment aligned;
-  aligned.overlap_length = 0;
-  aligned.overlap_matches = 0;
-  Hashmap<char> unmerged_chars, merged_chars;
+  PairedSeqAndQualChar unmerged_chars;
+  SeqAndQualChar merged_char;
 
   while (!is_path_start(row, col)) {
-    flat_id = flat_index(col, row, ncol);
+    flat_id = flatten_index(col, row, ncol);
     switch(path[flat_id]) {
       case int('d'):
         col--; row--;
-        unmerged_chars = get_current_chars(row, col, sequences, qualities);
-        merged_chars = merge_forward_and_reverse_chars(
+        unmerged_chars = find_char_at_row_column(
+          row, col, sequences, qualities
+        );
+        merged_char = merge_forward_and_reverse_chars(
           unmerged_chars, merged_qualities_match, merged_qualities_mismatch
         );
         aligned.sequence.push_back(merged_chars["sequence"]);

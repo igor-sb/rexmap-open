@@ -1,48 +1,105 @@
 #include "mergepairs_helper.h"
+#include "AlignmentGrid.h"
+
+template<typename T>
+using Hashmap = std::unordered_map<std::string, T>;
 
 // [[Rcpp::export]]
-Hashmap<std::vector<int>> test_calc_score_path_first_row(
+Hashmap<unsigned int> c_create_flat_index(
+  unsigned int row,
+  unsigned int column,
+  unsigned int num_columns
+) {
+  Index flat_id(row, column, num_columns);
+  return {
+    {"current", flat_id.current},
+    {"left", flat_id.left},
+    {"upper", flat_id.upper},
+    {"diag", flat_id.diag}
+  };
+}
+
+// [[Rcpp::export]]
+Hashmap<std::vector<int>> c_alignmentgrid_fill_first_row(
   std::vector<int> &score,
   std::vector<int> &path,
-  int ncol
+  unsigned int num_rows,
+  unsigned int num_columns
 ) {
-  calc_score_path_first_row(score, path, ncol);
-  return {{"score", score}, {"path", path}};
+  AlignmentGrid score_and_path(num_rows, num_columns, "overlap");
+  score_and_path
+    .set_manual_score(score)
+    .set_manual_path(path)
+    .fill_first_row();
+  return {
+    {"score", score_and_path.get_score()},
+    {"path", score_and_path.get_path()}
+  };
 }
 
 // [[Rcpp::export]]
-Hashmap<std::vector<int>> test_calc_score_path_first_column(
+Hashmap<std::vector<int>> c_alignmentgrid_fill_first_column(
     std::vector<int> &score,
     std::vector<int> &path,
-    int nrow,
-    int ncol,
-    int gap_p
+    int num_rows,
+    int num_columns,
+    int gap_penalty
 ) {
-    calc_score_path_first_column(score, path, nrow, ncol, gap_p);
-    return {{"score", score}, {"path", path}};
+  AlignmentGrid score_and_path(num_rows, num_columns, "overlap");
+  score_and_path
+    .set_manual_score(score)
+    .set_manual_path(path)
+    .fill_first_column(gap_penalty);
+  return {
+    {"score", score_and_path.get_score()},
+    {"path", score_and_path.get_path()}
+  };
 }
 
 // [[Rcpp::export]]
-Hashmap<std::vector<int>> test_calc_score_path_other(
+Hashmap<std::vector<int>> c_alignmentgrid_fill_other(
     std::vector<int> &score,
     std::vector<int> &path,
     Rcpp::List &sequences,
-    Vector2d<int> &align_scores,
-    int gap_p
+    std::vector<std::vector<int>> &scoring_matrix,
+    int gap_penalty
 ) {
-  PairedString sequences_pair(sequences["forward"], sequences["reverse"]);
-  calc_score_path_other(score, path, sequences_pair, align_scores, gap_p);
-  return {{"score", score}, {"path", path}};  
+  std::string sequence_fwd = sequences["forward"];
+  std::string sequence_rev = sequences["reverse"];
+  unsigned int num_columns = sequence_fwd.size() + 1;
+  unsigned int num_rows = sequence_rev.size() + 1;
+  PairedString sequences_pair(sequence_fwd, sequence_rev);
+  AlignmentGrid score_and_path(num_rows, num_columns, "overlap");
+  score_and_path
+    .set_manual_score(score)
+    .set_manual_path(path)
+    .fill_other_rows_cols(sequences_pair, scoring_matrix, gap_penalty);
+  
+  return {
+    {"score", score_and_path.get_score()},
+    {"path", score_and_path.get_path()}
+  };
 }
 
 // [[Rcpp::export]]
-Hashmap<std::vector<int>> test_find_best_scoring_path(
+Hashmap<std::vector<int>> c_alignmentgrid_best_path(
     Rcpp::List &sequences,
-    Vector2d<int> scoring_matrix,
-    int gap_p
+    std::vector<std::vector<int>> &scoring_matrix,
+    int gap_penalty
 ) {
+  std::string sequence_fwd = sequences["forward"];
+  std::string sequence_rev = sequences["reverse"];
+  unsigned int num_columns = sequence_fwd.size() + 1;
+  unsigned int num_rows = sequence_rev.size() + 1;
   PairedString sequences_pair(sequences["forward"], sequences["reverse"]);
-  return find_best_scoring_path(sequences_pair, scoring_matrix, gap_p);  
+  AlignmentGrid score_and_path(num_rows, num_columns, "overlap");
+  score_and_path.find_best_scoring_path(
+    sequences_pair, scoring_matrix, gap_penalty
+  );
+  return {
+    {"score", score_and_path.get_score()},
+    {"path", score_and_path.get_path()}
+  };
 }
 
 // [[Rcpp::export]]

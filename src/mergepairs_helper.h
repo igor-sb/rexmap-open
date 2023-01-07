@@ -6,7 +6,7 @@ void calc_score_path_other(
     std::vector<int> &path,
     PairedString &sequences,
     Vector2d<int> &scoring_matrix,
-    int gap_p
+    int &gap_p
 );
 
 void calc_score_path_first_row(

@@ -1,15 +1,11 @@
-#include <Rcpp.h>
-#include "rexmap.h"
-#include <cstdio>
-// [[Rcpp::plugins(cpp11)]]
+#include <vector>
 
-// 2D to 1D array index conversion
-unsigned int flat_index(
-    unsigned int column_index,
-    unsigned int row_index,
-    unsigned int ncol
+unsigned int flatten_index(
+    unsigned int row,
+    unsigned int column,
+    unsigned int num_columns
 ) {
-  return row_index * ncol + column_index;
+  return row * num_columns + column;
 }
 
 // [[Rcpp::export]]
@@ -35,44 +31,12 @@ int to_int(char &nt) {
 }
 
 // [[Rcpp::export]]
-Vector2d<int> create_scoring_matrix(int match, int mismatch) {
-  Vector2d<int> score_matrix(5, std::vector<int>(5));
+std::vector<std::vector<int>> create_scoring_matrix(int match, int mismatch) {
+  std::vector<std::vector<int>> score_matrix(5, std::vector<int>(5));
   for (int i = 0; i < 5; i++) {
     for (int j = 0; j < 5; j++) {
       score_matrix[i][j] = (i == j && i < 4) ? match : mismatch; 
     }
   }
   return score_matrix;
-}
-
-// template <typename T>
-void print_flat_vector(const std::vector<int> &v, unsigned int ncol) {
-  unsigned int flat_id;
-  char buffer[5];
-  
-  for (flat_id = 0; flat_id < v.size(); flat_id++) {
-    if (flat_id % ncol == 0) std::cout << "\n";
-    sprintf(buffer, "% 3d", v[flat_id]);
-    std::cout << buffer << " ";
-  }
-  std::cout << "\n";
-  return;
-}
-
-// Sum matching integer values from two hashmaps
-Hashmap<int> sum_values(
-    Hashmap<int> map1,
-    Hashmap<int> map2
-) {
-  Hashmap<int> sum;
-  
-  for (const auto &key_value : map1) {
-    sum[key_value.first] = key_value.second;
-  }
-  
-  for (const auto &key_value : map2) {
-    sum[key_value.first] += key_value.second;
-  }
-  
-  return sum;
 }

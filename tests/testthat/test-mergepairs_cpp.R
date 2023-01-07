@@ -22,7 +22,7 @@ test_that("mergepairs c++: get indexes from score and path", {
   nrow <- nchar(sequences[2]) + 1L
   # C++ index 1, 2: 
   expect_identical(
-    get_indexes(1, 2, ncol),
+    test_create_flat_index(1, 2, ncol),
     c("diag" = 7, "left" = 14, "upper" = 8, "current" = 15)
   )
 })
@@ -33,7 +33,7 @@ test_that("mergepairs c++: dp score = zero & path = left for first row", {
   nrow <- nchar(sequences[2]) + 1L
   score <- rep(NA_integer_, ncol * nrow)
   path <- rep(NA_integer_, ncol * nrow)
-  score_and_path <- test_calc_score_path_first_row(score, path, ncol)
+  score_and_path <- c_alignmentgrid_fill_first_row(score, path, nrow, ncol)
   
   expect_identical(
     dp_path_matrix(score_and_path$path, ncol)[1, ],
@@ -53,8 +53,9 @@ test_that("mergepairs c++: dp score and path = up for first column", {
   nrow <- nchar(sequences[2]) + 1L
   score <- rep(NA_integer_, ncol * nrow)
   path <- rep(NA_integer_, ncol * nrow)
-  score_and_path <- test_calc_score_path_first_column(score, path, nrow, ncol,
-                                                      gap_p)
+  score_and_path <- c_alignmentgrid_fill_first_column(
+    score, path, nrow, ncol, gap_p
+  )
   expect_identical(
     dp_path_matrix(score_and_path$path, ncol)[-1, 1],
     rep("u", nrow - 1)
@@ -78,8 +79,9 @@ test_that("mergepairs c++: calc_score_path_other ", {
   first_col <- seq.int(1L + ncol, 1L + ncol * (nrow - 1L), by = ncol)
   score[first_col] <- seq.int(gap_p, gap_p * (nrow - 1L), by = gap_p)
   path[first_col] <- chr_to_int("u")
-  score_and_path <- test_calc_score_path_other(score, path, sequences,
-                                               scoring_matrix, gap_p)
+  score_and_path <- c_alignmentgrid_fill_other(
+    score, path, sequences, scoring_matrix, gap_p
+  )
   
   true_scores <- matrix(
     c(
@@ -119,7 +121,7 @@ test_that("mergepairs c++: find_best_scoring_path w/ mismatch no indel", {
   sequences <- c(forward = "ATGCGAT", reverse = "CGGTTAC")
   scoring_matrix <- create_scoring_matrix(7L, -3L)
   gap_p <- -7L
-  score_and_path <- test_find_best_scoring_path(
+  score_and_path <- c_alignmentgrid_best_path(
     sequences, scoring_matrix, gap_p
   )
   
@@ -253,8 +255,8 @@ test_that("mergepairs c++: find_best_scoring_path w/ mismatch, w/ indel", {
 })
 
 # Add test cases for alignments:
-#  ATGCATGCAG
-#       TGCAG
+#  CATGCAG
+#    TGCAG
 
 # ATGCATGCAG
 # ATGCA

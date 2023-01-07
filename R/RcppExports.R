@@ -73,8 +73,8 @@ create_scoring_matrix <- function(match, mismatch) {
     .Call('_rexmap_create_scoring_matrix', PACKAGE = 'rexmap', match, mismatch)
 }
 
-get_indexes <- function(column, row, ncol) {
-    .Call('_rexmap_get_indexes', PACKAGE = 'rexmap', column, row, ncol)
+create_flat_indexes <- function(column, row, ncol) {
+    .Call('_rexmap_create_flat_indexes', PACKAGE = 'rexmap', column, row, ncol)
 }
 
 C_nwalign <- function(s1, s2, match, mismatch, indel) {
