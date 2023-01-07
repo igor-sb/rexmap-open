@@ -29,14 +29,3 @@ int to_int(char &nt) {
   }
   return(int_nt);
 }
-
-// [[Rcpp::export]]
-std::vector<std::vector<int>> create_scoring_matrix(int match, int mismatch) {
-  std::vector<std::vector<int>> score_matrix(5, std::vector<int>(5));
-  for (int i = 0; i < 5; i++) {
-    for (int j = 0; j < 5; j++) {
-      score_matrix[i][j] = (i == j && i < 4) ? match : mismatch; 
-    }
-  }
-  return score_matrix;
-}

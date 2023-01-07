@@ -1,3 +1,5 @@
+#pragma once
+
 class Index {
 public:
   unsigned int current;

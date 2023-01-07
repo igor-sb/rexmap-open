@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 /*
  * Container class for forward and reverse DNA sequences and quality scores

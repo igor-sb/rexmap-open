@@ -1,11 +1,9 @@
 #include "mergepairs_helper.h"
 #include "AlignmentGrid.h"
-
-template<typename T>
-using Hashmap = std::unordered_map<std::string, T>;
+#include <Rcpp.h>
 
 // [[Rcpp::export]]
-Hashmap<unsigned int> c_create_flat_index(
+std::unordered_map<std::string, unsigned int> c_create_flat_index(
   unsigned int row,
   unsigned int column,
   unsigned int num_columns
@@ -20,11 +18,12 @@ Hashmap<unsigned int> c_create_flat_index(
 }
 
 // [[Rcpp::export]]
-Hashmap<std::vector<int>> c_alignmentgrid_fill_first_row(
-  std::vector<int> &score,
-  std::vector<int> &path,
-  unsigned int num_rows,
-  unsigned int num_columns
+std::unordered_map<std::string, std::vector<int>>
+  c_alignmentgrid_fill_first_row(
+    std::vector<int> &score,
+    std::vector<int> &path,
+    unsigned int num_rows,
+    unsigned int num_columns
 ) {
   AlignmentGrid score_and_path(num_rows, num_columns, "overlap");
   score_and_path
@@ -38,7 +37,8 @@ Hashmap<std::vector<int>> c_alignmentgrid_fill_first_row(
 }
 
 // [[Rcpp::export]]
-Hashmap<std::vector<int>> c_alignmentgrid_fill_first_column(
+std::unordered_map<std::string, std::vector<int>>
+  c_alignmentgrid_fill_first_column(
     std::vector<int> &score,
     std::vector<int> &path,
     int num_rows,
@@ -57,7 +57,7 @@ Hashmap<std::vector<int>> c_alignmentgrid_fill_first_column(
 }
 
 // [[Rcpp::export]]
-Hashmap<std::vector<int>> c_alignmentgrid_fill_other(
+std::unordered_map<std::string, std::vector<int>> c_alignmentgrid_fill_other(
     std::vector<int> &score,
     std::vector<int> &path,
     Rcpp::List &sequences,
@@ -82,7 +82,7 @@ Hashmap<std::vector<int>> c_alignmentgrid_fill_other(
 }
 
 // [[Rcpp::export]]
-Hashmap<std::vector<int>> c_alignmentgrid_best_path(
+std::unordered_map<std::string, std::vector<int>> c_alignmentgrid_best_path(
     Rcpp::List &sequences,
     std::vector<std::vector<int>> &scoring_matrix,
     int gap_penalty
@@ -93,7 +93,7 @@ Hashmap<std::vector<int>> c_alignmentgrid_best_path(
   unsigned int num_rows = sequence_rev.size() + 1;
   PairedString sequences_pair(sequences["forward"], sequences["reverse"]);
   AlignmentGrid score_and_path(num_rows, num_columns, "overlap");
-  score_and_path.find_best_scoring_path(
+  score_and_path.fill_full_grid(
     sequences_pair, scoring_matrix, gap_penalty
   );
   return {
@@ -103,20 +103,20 @@ Hashmap<std::vector<int>> c_alignmentgrid_best_path(
 }
 
 // [[Rcpp::export]]
-MergedAlignment test_merge_by_path_backtrack(
-    std::vector<int> &path,
-    Rcpp::List &sequences,
-    Rcpp::List &qualities,
-    Vector2d<unsigned int> &merged_qualities_match,
-    Vector2d<unsigned int> &merged_qualities_mismatch
+Rcpp::List c_merge_paired_sequence_and_quality(
+    Rcpp::List &sequence,
+    Rcpp::List &quality,
+    std::vector<int> &grid_path,
+    std::vector<std::vector<unsigned int>> &match_quality_merging_map,
+    std::vector<std::vector<unsigned int>> &mismatch_quality_merging_map
 ) {
-  PairedString sequences_pair(sequences["forward"], sequences["reverse"]);
-  PairedString qualities_pair(qualities["forward"], qualities["reverse"]);
-  return merge_by_path_backtrack(
-    path,
-    sequences_pair,
-    qualities_pair,
-    merged_qualities_match,
-    merged_qualities_mismatch
+  PairedString sequence_pair(sequence["forward"], sequence["reverse"]);
+  PairedString quality_pair(quality["forward"], quality["reverse"]);
+  QualityMergingMap quality_merging_map(
+      match_quality_merging_map, mismatch_quality_merging_map
   );
+  MergedAlignment alignment = merge_paired_sequence_and_quality(
+    sequence_pair, quality_pair, grid_path, quality_merging_map
+  );
+  return alignment.as_rcpp_list();
 }

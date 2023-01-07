@@ -1,6 +1,6 @@
 test_that("mergepairs c++: create scores", {
   expect_identical(
-    create_scoring_matrix(5, -2),
+    create_scoring_matrix(c(match = 5, mismatch = -2)),
     list(c(5L, -2L, -2L, -2L, -2L),
          c(-2L, 5L, -2L, -2L, -2L),
          c(-2L, -2L, 5L, -2L, -2L),
@@ -22,12 +22,12 @@ test_that("mergepairs c++: get indexes from score and path", {
   nrow <- nchar(sequences[2]) + 1L
   # C++ index 1, 2: 
   expect_identical(
-    test_create_flat_index(1, 2, ncol),
+    c_create_flat_index(2, 1, ncol),
     c("diag" = 7, "left" = 14, "upper" = 8, "current" = 15)
   )
 })
 
-test_that("mergepairs c++: dp score = zero & path = left for first row", {
+test_that("mergepairs c++: alignment grid: fill first row", {
   sequences <- c(forward = "ATGCGA", reverse = "CGATT")
   ncol <- nchar(sequences[1]) + 1L
   nrow <- nchar(sequences[2]) + 1L
@@ -45,9 +45,9 @@ test_that("mergepairs c++: dp score = zero & path = left for first row", {
   )
 })
 
-test_that("mergepairs c++: dp score and path = up for first column", {
+test_that("mergepairs c++: alignment grid: fill first column", {
   sequences <- c(forward = "ATGCGA", reverse = "CGATT")
-  scoring_matrix <- create_scoring_matrix(5L, -5L)
+  scoring_matrix <- create_scoring_matrix(c(match = 5, mismatch = -5))
   gap_p <- -7L
   ncol <- nchar(sequences[1]) + 1L
   nrow <- nchar(sequences[2]) + 1L
@@ -66,9 +66,9 @@ test_that("mergepairs c++: dp score and path = up for first column", {
   )
 })
 
-test_that("mergepairs c++: calc_score_path_other ", {
+test_that("mergepairs c++: alignment grid: fill all other rows/columns", {
   sequences <- c(forward = "ATGCGAT", reverse = "CGGTTAC")
-  scoring_matrix <- create_scoring_matrix(7L, -3L)
+  scoring_matrix <- create_scoring_matrix(c(match = 7, mismatch = -3))
   gap_p <- -7L
   ncol <- nchar(sequences[1]) + 1L
   nrow <- nchar(sequences[2]) + 1L
@@ -85,8 +85,8 @@ test_that("mergepairs c++: calc_score_path_other ", {
   
   true_scores <- matrix(
     c(
-      0L,   0L,   0L,   0L,   0L,   0L,   0L,   0L,
-      -7L,  -3L,  -3L,  -3L,   7L,   0L,  -3L,   0L,
+        0L,   0L,   0L,   0L,   0L,   0L,   0L,   0L,
+       -7L,  -3L,  -3L,  -3L,   7L,   0L,  -3L,   0L,
       -14L, -10L,  -6L,   4L,   0L,  14L,   7L,   0L,
       -21L, -17L, -13L,   1L,   1L,   7L,  11L,   4L,
       -28L, -24L, -10L,  -6L,  -2L,   0L,   4L,  18L,
@@ -119,7 +119,7 @@ test_that("mergepairs c++: find_best_scoring_path w/ mismatch no indel", {
   # ATGCGAT
   #    CGGTTAC
   sequences <- c(forward = "ATGCGAT", reverse = "CGGTTAC")
-  scoring_matrix <- create_scoring_matrix(7L, -3L)
+  scoring_matrix <- create_scoring_matrix(c(match = 7, mismatch = -3))
   gap_p <- -7L
   score_and_path <- c_alignmentgrid_best_path(
     sequences, scoring_matrix, gap_p
@@ -166,7 +166,7 @@ test_that("mergepairs c++: merge_by_path_backtrack w/ mismatch, no indel", {
   #   40 39 37 82 78  9 57 33 31 27  
   sequences <- c(forward = "ATGCGAT", reverse = "CGGTTAC")
   qualities <- c(forward = "IHFGD93", reverse = "HGACB@<")
-  scoring_matrix <- create_scoring_matrix(7L, -3L)
+  scoring_matrix <- create_scoring_matrix(c(match = 7, mismatch = -3))
   gap_p <- -7L
   true_path <- matrix(
     c(
@@ -182,10 +182,10 @@ test_that("mergepairs c++: merge_by_path_backtrack w/ mismatch, no indel", {
     ncol = 8,
     byrow = TRUE
   ) |> t() |> as.vector() |> chr_to_int()
-  alignment <- test_merge_by_path_backtrack(
-    true_path,
+  alignment <- c_merge_paired_sequence_and_quality(
     sequences,
     qualities,
+    true_path,
     merged_qualities$match,
     merged_qualities$mismatch
   )
@@ -200,7 +200,7 @@ test_that("mergepairs c++: merge_by_path_backtrack w/ mismatch, no indel", {
   expect_mapequal(alignment, true_alignment)
 })
 
-test_that("mergepairs c++: find_best_scoring_path w/ mismatch, w/ indel", {
+test_that("mergepairs c++: alignment grid: best path w/ mismatch and indel", {
   #   A  T  G  C  G  A  T  T  A
   #   40 39 37 38 35 24 18 19 12
   #            C  G  G  T  -  A  C  G  T
@@ -214,9 +214,9 @@ test_that("mergepairs c++: find_best_scoring_path w/ mismatch, w/ indel", {
     forward = quality_integer_to_string(qualities_fwd_int),
     reverse = quality_integer_to_string(qualities_rev_int)
   )
-  score_and_path <- test_find_best_scoring_path(
+  score_and_path <- c_alignmentgrid_best_path(
     sequences,
-    create_scoring_matrix(7L, -3L),
+    create_scoring_matrix(c(match = 7, mismatch = -3)),
     gap_p = -7L
   )
   
@@ -264,19 +264,24 @@ test_that("mergepairs c++: find_best_scoring_path w/ mismatch, w/ indel", {
 
 # Add test case with indels within the overlap
 
-test_that("mergepairs c++: align_seqs_and_quals full alignment", {
+test_that("mergepairs c++: full alignment", {
   # ATGCGAT
   #    CGGTTAC
   # IHF
   sequences <- c(forward = "ATGCGAT", reverse = "CGGTTAC")
   qualities <- c(forward = "IHFGD93", reverse = "HGACB@<")
-  alignment <- align_seqs_and_quals(
+  alignment <- c_align_paired_sequence_and_quality(
     sequences,
     qualities,
-    c("match" = 7L, "mismatch" = -4L, "gap_penalty" = 7L),
+    c("match" = 7L, "mismatch" = -4L, "gap_penalty" = -7L),
     merged_qualities$match,
     merged_qualities$mismatch
   )
-  true_alignment <- c(sequence = "ATGCGGTTAC", quality = "IHFso*ZB@<")
+  true_alignment <- list(
+    sequence = "ATGCGGTTAC",
+    quality = "IHFso*ZB@<",
+    overlap_length = 4,
+    overlap_matches = 3
+  )
   expect_mapequal(alignment, true_alignment)
 })

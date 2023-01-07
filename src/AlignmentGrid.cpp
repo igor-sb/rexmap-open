@@ -80,7 +80,7 @@ AlignmentGrid &AlignmentGrid::fill_first_column(
   unsigned int flat_id;
   int first_column_gap = alignment_type == "fitting" ? 0 : gap_penalty;
   for (int row = 1; row < num_rows; row++) {
-    flat_id = flatten_index(0, row, num_columns);
+    flat_id = flatten_index(row, 0, num_columns);
     score[flat_id] = first_column_gap * row;
     path[flat_id] = int('u');
   }
@@ -98,7 +98,7 @@ AlignmentGrid &AlignmentGrid::fill_other_rows_cols(
 
   for (unsigned int row = 1; row < num_rows; row++) {
     for (unsigned int column = 1; column < num_columns; column++) {
-      flat_id = flatten_index(column, row, num_columns);
+      flat_id = flatten_index(row, column, num_columns);
       scores_current = calculate_current_scores(
         row, column, sequences, scoring_matrix, gap_penalty
       );
@@ -110,7 +110,7 @@ AlignmentGrid &AlignmentGrid::fill_other_rows_cols(
   return *this;
 }
 
-AlignmentGrid &AlignmentGrid::find_best_scoring_path(
+AlignmentGrid &AlignmentGrid::fill_full_grid(
     PairedString &sequences,
     std::vector<std::vector<int>> &scoring_matrix,
     int &gap_penalty

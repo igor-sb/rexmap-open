@@ -1,5 +1,5 @@
+#pragma once
 #include <vector>
-#include <unordered_map>
 #include "Index.h"
 #include "PairedString.h"
 #include "NodeScore.h"
@@ -13,11 +13,11 @@ class AlignmentGrid {
 
 private:
   
-  std::string alignment_type;
   std::vector<int> score;
   std::vector<int> path;
   unsigned int num_rows;
   unsigned int num_columns;
+  std::string alignment_type;
   
   NodeScore find_previous_scores(
     unsigned int &row,
@@ -57,7 +57,7 @@ public:
     std::vector<std::vector<int>> &scoring_matrix,
     int &gap_penalty
   );
-  AlignmentGrid &find_best_scoring_path(
+  AlignmentGrid &fill_full_grid(
       PairedString &sequences,
       std::vector<std::vector<int>> &scoring_matrix,
       int &gap_penalty
@@ -70,5 +70,4 @@ public:
   );
   std::vector<int> get_score();
   std::vector<int> get_path();
-  
 };

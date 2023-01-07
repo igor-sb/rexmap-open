@@ -21,12 +21,12 @@ compare_alignment <- function(s1, s2) {
     .Call('_rexmap_compare_alignment', PACKAGE = 'rexmap', s1, s2)
 }
 
-get_merged_qualities <- function(q1char, q2char, merged_qualities) {
-    .Call('_rexmap_get_merged_qualities', PACKAGE = 'rexmap', q1char, q2char, merged_qualities)
+create_scoring_matrix <- function(alignment_scores) {
+    .Call('_rexmap_create_scoring_matrix', PACKAGE = 'rexmap', alignment_scores)
 }
 
-align_seqs_and_quals <- function(sequences, qualities, alignment_scores, merged_qualities_match, merged_qualities_mismatch) {
-    .Call('_rexmap_align_seqs_and_quals', PACKAGE = 'rexmap', sequences, qualities, alignment_scores, merged_qualities_match, merged_qualities_mismatch)
+c_align_paired_sequence_and_quality <- function(sequences, qualities, alignment_scores, match_quality_merging_map, mismatch_quality_merging_map) {
+    .Call('_rexmap_c_align_paired_sequence_and_quality', PACKAGE = 'rexmap', sequences, qualities, alignment_scores, match_quality_merging_map, mismatch_quality_merging_map)
 }
 
 load_posterior <- function(filename) {
@@ -45,36 +45,32 @@ C_mergepairs <- function(s1, s2, q1, q2, posterior_match_file, posterior_mismatc
     .Call('_rexmap_C_mergepairs', PACKAGE = 'rexmap', s1, s2, q1, q2, posterior_match_file, posterior_mismatch_file, match, mismatch, gap_p)
 }
 
-test_calc_score_path_first_row <- function(score, path, ncol) {
-    .Call('_rexmap_test_calc_score_path_first_row', PACKAGE = 'rexmap', score, path, ncol)
+c_create_flat_index <- function(row, column, num_columns) {
+    .Call('_rexmap_c_create_flat_index', PACKAGE = 'rexmap', row, column, num_columns)
 }
 
-test_calc_score_path_first_column <- function(score, path, nrow, ncol, gap_p) {
-    .Call('_rexmap_test_calc_score_path_first_column', PACKAGE = 'rexmap', score, path, nrow, ncol, gap_p)
+c_alignmentgrid_fill_first_row <- function(score, path, num_rows, num_columns) {
+    .Call('_rexmap_c_alignmentgrid_fill_first_row', PACKAGE = 'rexmap', score, path, num_rows, num_columns)
 }
 
-test_calc_score_path_other <- function(score, path, sequences, align_scores, gap_p) {
-    .Call('_rexmap_test_calc_score_path_other', PACKAGE = 'rexmap', score, path, sequences, align_scores, gap_p)
+c_alignmentgrid_fill_first_column <- function(score, path, num_rows, num_columns, gap_penalty) {
+    .Call('_rexmap_c_alignmentgrid_fill_first_column', PACKAGE = 'rexmap', score, path, num_rows, num_columns, gap_penalty)
 }
 
-test_find_best_scoring_path <- function(sequences, scoring_matrix, gap_p) {
-    .Call('_rexmap_test_find_best_scoring_path', PACKAGE = 'rexmap', sequences, scoring_matrix, gap_p)
+c_alignmentgrid_fill_other <- function(score, path, sequences, scoring_matrix, gap_penalty) {
+    .Call('_rexmap_c_alignmentgrid_fill_other', PACKAGE = 'rexmap', score, path, sequences, scoring_matrix, gap_penalty)
 }
 
-test_merge_by_path_backtrack <- function(path, sequences, qualities, merged_qualities_match, merged_qualities_mismatch) {
-    .Call('_rexmap_test_merge_by_path_backtrack', PACKAGE = 'rexmap', path, sequences, qualities, merged_qualities_match, merged_qualities_mismatch)
+c_alignmentgrid_best_path <- function(sequences, scoring_matrix, gap_penalty) {
+    .Call('_rexmap_c_alignmentgrid_best_path', PACKAGE = 'rexmap', sequences, scoring_matrix, gap_penalty)
+}
+
+c_merge_paired_sequence_and_quality <- function(sequence, quality, grid_path, match_quality_merging_map, mismatch_quality_merging_map) {
+    .Call('_rexmap_c_merge_paired_sequence_and_quality', PACKAGE = 'rexmap', sequence, quality, grid_path, match_quality_merging_map, mismatch_quality_merging_map)
 }
 
 to_int <- function(nt) {
     .Call('_rexmap_to_int', PACKAGE = 'rexmap', nt)
-}
-
-create_scoring_matrix <- function(match, mismatch) {
-    .Call('_rexmap_create_scoring_matrix', PACKAGE = 'rexmap', match, mismatch)
-}
-
-create_flat_indexes <- function(column, row, ncol) {
-    .Call('_rexmap_create_flat_indexes', PACKAGE = 'rexmap', column, row, ncol)
 }
 
 C_nwalign <- function(s1, s2, match, mismatch, indel) {
